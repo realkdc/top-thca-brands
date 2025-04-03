@@ -241,31 +241,40 @@ const ContactManagement = () => {
       {/* View/Edit Contact Dialog */}
       {currentContact && (
         <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">Contact Submission</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="max-w-md">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-lg font-semibold">Contact Submission</DialogTitle>
+              <DialogDescription className="text-xs">
                 Submitted on {currentContact.createdAt && formatDateTime(currentContact.createdAt)}
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Name</Label>
-                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.name}</p>
+                <Label className="text-xs font-medium text-gray-700">Name</Label>
+                <div className="text-sm font-medium text-gray-900 p-2 bg-gray-50 rounded border border-gray-200">
+                  {currentContact.name}
+                </div>
               </div>
+              
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Email</Label>
-                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.email}</p>
+                <Label className="text-xs font-medium text-gray-700">Email</Label>
+                <div className="text-sm font-medium text-gray-900 p-2 bg-gray-50 rounded border border-gray-200">
+                  {currentContact.email}
+                </div>
               </div>
+              
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Brand Name</Label>
-                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.brandName}</p>
+                <Label className="text-xs font-medium text-gray-700">Brand Name</Label>
+                <div className="text-sm font-medium text-gray-900 p-2 bg-gray-50 rounded border border-gray-200">
+                  {currentContact.brandName}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Website</Label>
-                <p className="font-medium p-2 bg-gray-50 rounded-md">
-                  {currentContact.website ? (
+              
+              {currentContact.website && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-gray-700">Website</Label>
+                  <div className="text-sm font-medium p-2 bg-gray-50 rounded border border-gray-200">
                     <a 
                       href={currentContact.website} 
                       target="_blank" 
@@ -274,63 +283,61 @@ const ContactManagement = () => {
                     >
                       {currentContact.website}
                     </a>
-                  ) : (
-                    'Not provided'
-                  )}
-                </p>
-              </div>
-            </div>
-            
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <MessageSquare size={16} className="text-gray-700" />
-                <Label className="text-sm font-medium text-gray-700">Message</Label>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-md border border-gray-200 text-gray-900 whitespace-pre-wrap max-h-[200px] overflow-y-auto">
-                {currentContact.message}
-              </div>
-            </div>
-            
-            <div className="border-t border-gray-200 pt-6 space-y-4">
-              <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                <span>Update Status</span>
-              </h4>
+                  </div>
+                </div>
+              )}
               
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-sm font-medium text-gray-700">Status</Label>
-                <Select
-                  value={statusData.status}
-                  onValueChange={handleStatusChange}
-                >
-                  <SelectTrigger className="w-full bg-white border-gray-300">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="reviewed">Reviewed</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="adminNotes" className="text-sm font-medium text-gray-700">Admin Notes</Label>
-                <Textarea
-                  id="adminNotes"
-                  value={statusData.adminNotes}
-                  onChange={handleNotesChange}
-                  placeholder="Add notes about this submission..."
-                  className="min-h-[100px] bg-white border-gray-300"
-                />
+                <Label className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                  <MessageSquare size={12} className="text-gray-700" />
+                  Message
+                </Label>
+                <div className="text-sm bg-gray-50 p-3 rounded border border-gray-200 text-gray-900 whitespace-pre-wrap max-h-[150px] overflow-y-auto">
+                  {currentContact.message}
+                </div>
               </div>
             </div>
             
-            <DialogFooter className="gap-2 mt-4">
-              <Button variant="outline" onClick={() => setViewOpen(false)} className="border-gray-300">
+            <div className="border-t border-gray-200 mt-4 pt-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-3">Update Status</h4>
+              
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="status" className="text-xs font-medium text-gray-700">Status</Label>
+                  <Select
+                    value={statusData.status}
+                    onValueChange={handleStatusChange}
+                  >
+                    <SelectTrigger className="h-8 text-xs bg-white border-gray-300">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="reviewed">Reviewed</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="adminNotes" className="text-xs font-medium text-gray-700">Admin Notes</Label>
+                  <Textarea
+                    id="adminNotes"
+                    value={statusData.adminNotes}
+                    onChange={handleNotesChange}
+                    placeholder="Add notes about this submission..."
+                    className="min-h-[80px] text-xs bg-white border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter className="gap-2 mt-3 pt-2 border-t border-gray-200">
+              <Button variant="outline" size="sm" onClick={() => setViewOpen(false)} className="h-8 text-xs border-gray-300">
                 Close
               </Button>
-              <Button onClick={handleUpdateStatus} className="bg-thca-red hover:bg-thca-red/90 text-white">
+              <Button size="sm" onClick={handleUpdateStatus} className="h-8 text-xs bg-thca-red hover:bg-thca-red/90 text-white">
                 Update Status
               </Button>
             </DialogFooter>
@@ -340,18 +347,18 @@ const ContactManagement = () => {
       
       {/* Delete Confirmation Dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-900">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-gray-700">
+            <DialogTitle className="text-lg font-semibold text-gray-900">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-sm text-gray-700">
               Are you sure you want to delete this contact submission? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 mt-4">
-            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)} className="border-gray-300">
+            <Button variant="outline" size="sm" onClick={() => setConfirmDeleteOpen(false)} className="border-gray-300">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" size="sm" onClick={handleDelete}>
               Delete
             </Button>
           </DialogFooter>
