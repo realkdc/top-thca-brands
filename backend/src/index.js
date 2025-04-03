@@ -20,50 +20,67 @@ const PORT = process.env.PORT || 5001;
 
 // Replace MongoDB connection with Supabase connection status logging
 console.log('Initializing Supabase connection...');
+
+// Test the Supabase connection by making a simple query
 supabase.from('brands').select('count').then(({ data, error }) => {
   if (error) {
-    console.error('Could not connect to Supabase:', error.message);
+    console.error('❌ Supabase connection error:', error);
   } else {
-    console.log('Connected to Supabase successfully');
+    console.log('✅ Supabase connected successfully!');
+    console.log(`Found ${data[0]?.count || 0} brands in the database`);
   }
 });
 
-// Replace MongoDB status endpoint with Supabase status endpoint
-app.get('/api/db-status', async (req, res) => {
-  const { data, error } = await supabase.from('brands').select('count');
-  
-  if (error) {
-    res.json({
-      status: 0,
-      statusText: 'disconnected',
-      message: 'Database not connected: ' + error.message
-    });
-  } else {
-    res.json({
-      status: 1,
-      statusText: 'connected',
-      message: 'Supabase database connected'
-    });
-  }
-});
+// Simple CORS configuration (uncomment if having issues with the complex one)
+/*
+app.use(cors({
+  origin: '*',  // WARNING: This allows any website to make requests to your API
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+*/
 
-// Middleware
+// Complex CORS configuration with specific origins
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps, curl requests)
     if (!origin) return callback(null, true);
     
+    // Log all CORS requests for debugging
+    console.log('CORS request from origin:', origin);
+
+    // Temporary: Allow all origins if CORS_DEBUG is set to 'true'
+    if (process.env.CORS_DEBUG === 'true') {
+      console.log('CORS debug mode enabled - allowing all origins');
+      return callback(null, true);
+    }
+    
     // Define allowed origins - both with and without trailing slash
     const allowedOrigins = [
       'https://topthcabrands.netlify.app',
       'https://topthcabrands.netlify.app/',
+      'http://topthcabrands.com',
+      'https://topthcabrands.com',
+      'http://www.topthcabrands.com',
+      'https://www.topthcabrands.com',
+      // With trailing slashes
+      'http://topthcabrands.com/',
+      'https://topthcabrands.com/',
+      'http://www.topthcabrands.com/',
+      'https://www.topthcabrands.com/',
       process.env.CLIENT_URL,
       process.env.CLIENT_URL + '/',
       'http://localhost:5173',
       'http://localhost:5173/'
     ];
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    // Allow all origins in development mode
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('CORS blocked request from:', origin);
