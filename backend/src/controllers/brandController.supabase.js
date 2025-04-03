@@ -40,9 +40,17 @@ function mapToSupabaseColumns(data) {
     } else if (key === 'image') {
       // Skip image field as we'll handle it separately
       // In Supabase we use 'logo' instead of 'image'
-    } else {
-      // For most fields, keep the original name
+    } else if (key === 'location') {
+      // Skip location field as it doesn't exist in the database
+    } else if (key === 'name' || key === 'description') {
+      // Include standard fields that exist in the database
       mappedData[key] = data[key];
+    } else {
+      // For any other fields, only include if they match the schema
+      // Limits what gets sent to Supabase to avoid column errors
+      if (['thc_percentage', 'cbd_percentage'].includes(key)) {
+        mappedData[key] = data[key];
+      }
     }
   });
   
