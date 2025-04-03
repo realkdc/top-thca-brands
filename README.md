@@ -184,4 +184,52 @@ node createAdmin.js
 
 ## License
 
-This project is proprietary and confidential. 
+This project is proprietary and confidential.
+
+## Database Options
+
+This application supports two database options:
+
+### MongoDB (Original)
+The application was originally built with MongoDB as the database. To use MongoDB:
+- Set up a MongoDB Atlas account or local MongoDB server
+- Configure the `MONGO_URI` in your `.env` file
+
+### Supabase (New)
+The application now supports Supabase as an alternative database. To use Supabase:
+- Set up a Supabase project at [app.supabase.com](https://app.supabase.com)
+- Configure `SUPABASE_URL` and `SUPABASE_KEY` in your `.env` file
+
+## Migrating from MongoDB to Supabase
+
+To migrate your application from MongoDB to Supabase:
+
+1. Make sure your `.env` file contains both MongoDB and Supabase credentials:
+   ```
+   # MongoDB configuration
+   MONGODB_URI=your_mongodb_uri
+   
+   # Supabase configuration
+   SUPABASE_URL=https://your-project-ref.supabase.co
+   SUPABASE_KEY=your-anon-key
+   
+   # Common configuration
+   JWT_SECRET=your_secure_jwt_secret
+   ```
+
+2. Run the complete migration script:
+   ```bash
+   cd backend
+   node scripts/completeSupabaseMigration.js
+   ```
+
+3. This script will:
+   - Test your Supabase connection
+   - Set up necessary tables and storage buckets
+   - Migrate existing data from MongoDB
+   - Update your routes to use Supabase controllers
+
+4. Start your server and verify everything works:
+   ```bash
+   npm start
+   ``` 

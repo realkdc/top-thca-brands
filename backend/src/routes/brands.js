@@ -6,8 +6,8 @@ const {
   updateBrand, 
   deleteBrand,
   updateBrandOrder
-} = require('../controllers/brandController');
-const { protect, authorize } = require('../middleware/auth');
+} = require('../controllers/brandController.supabase');
+const { protect, authorize } = require('../middleware/authMiddleware.supabase');
 const upload = require('../middleware/upload');
 
 const router = express.Router();

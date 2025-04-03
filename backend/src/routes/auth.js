@@ -1,6 +1,6 @@
 const express = require('express');
-const { register, login, getUserProfile, updateUserProfile } = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+const { register, login, getUserProfile, updateUserProfile } = require('../controllers/authController.supabase');
+const { protect, authorize } = require('../middleware/authMiddleware.supabase');
 
 const router = express.Router();
 

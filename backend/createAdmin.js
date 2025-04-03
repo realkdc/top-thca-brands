@@ -1,78 +1,81 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const readline = require('readline');
+const supabase = require('./src/utils/supabaseClient');
+const { v4: uuidv4 } = require('uuid');
 
-// MongoDB Atlas connection
-const MONGODB_URI = 'mongodb+srv://indieplantmarketing:hh3ScQ834zuzLaZy@topthcabrands.ea79zxn.mongodb.net/?retryWrites=true&w=majority&appName=topthcabrands';
-
-// Connect to MongoDB with improved options
-console.log('Connecting to MongoDB Atlas...');
-mongoose.connect(MONGODB_URI, {
-  // Add connection options to handle timeout issues
-  serverSelectionTimeoutMS: 30000, // 30 seconds
-  socketTimeoutMS: 45000, // 45 seconds
-  connectTimeoutMS: 30000, // 30 seconds
-  keepAlive: true,
-  keepAliveInitialDelay: 300000 // 5 minutes
-})
-  .then(() => console.log('Connected to MongoDB Atlas successfully!'))
-  .catch(err => {
-    console.error('Could not connect to MongoDB:', err);
-    process.exit(1);
-  });
-
-// Get the User model
-const User = require('./src/models/User');
-
-// Create readline interface for input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-// Function to ask questions to the user
-function askQuestion(query) {
-  return new Promise(resolve => {
-    rl.question(query, resolve);
-  });
-}
-
-// Create the admin user
-async function createAdmin() {
+/**
+ * Create an admin user in the Supabase database
+ */
+async function createAdminUser() {
+  console.log('Creating admin user in Supabase...');
+  
   try {
-    console.log('===============================================');
-    console.log('Creating Specific Admin User');
-    console.log('===============================================');
-    
     // Admin user details
-    const adminUser = {
-      name: 'KeShaun',
-      email: 'keshaun@indieplantmarketing.com',
-      password: '605Legends.',
-      role: 'admin'
-    };
-
+    const adminEmail = 'keshaun@indieplantmarketing.com';
+    const adminPassword = '605Legends.';
+    const adminName = 'KeShaun';
+    
     // Check if user already exists
-    const existingUser = await User.findOne({ email: adminUser.email });
-    if (existingUser) {
-      console.log(`Admin user with email ${adminUser.email} already exists`);
-      process.exit(0);
+    console.log(`Checking if user ${adminEmail} already exists...`);
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', adminEmail)
+      .maybeSingle();
+    
+    if (checkError) {
+      throw new Error(`Error checking for existing user: ${checkError.message}`);
     }
-
-    // Create new user
-    const user = await User.create(adminUser);
-    console.log('Admin user created successfully!');
-    console.log(`Name: ${user.name}`);
-    console.log(`Email: ${user.email}`);
-    console.log(`Role: ${user.role}`);
-    console.log('\nYou can now log in to the admin dashboard at: https://topthcabrands.netlify.app/admin');
+    
+    if (existingUser) {
+      console.log('✅ Admin user already exists:');
+      console.log({
+        name: existingUser.name,
+        email: existingUser.email,
+        role: existingUser.role
+      });
+      return;
+    }
+    
+    // Hash password
+    console.log('Hashing password...');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPassword, salt);
+    
+    // Create user with UUID
+    const userId = uuidv4();
+    
+    // Insert user into Supabase
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: userId,
+          name: adminName,
+          email: adminEmail,
+          password: hashedPassword,
+          role: 'admin',
+          created_at: new Date().toISOString()
+        }
+      ])
+      .select()
+      .single();
+    
+    if (insertError) {
+      throw new Error(`Error creating admin user: ${insertError.message}`);
+    }
+    
+    console.log('✅ Admin user created successfully:');
+    console.log({
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    });
+    
   } catch (error) {
-    console.error('Error creating admin user:', error);
-  } finally {
-    mongoose.disconnect();
-    rl.close();
+    console.error('❌ Error:', error.message);
   }
 }
 
-createAdmin(); 
+// Run the function
+createAdminUser(); 

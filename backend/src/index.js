@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+
+// Import Supabase client
+const supabase = require('./utils/supabaseClient');
 
 // Import routes
 const brandRoutes = require('./routes/brands');
@@ -16,37 +18,33 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Connect to MongoDB with improved options
-console.log('Connecting to MongoDB...');
-mongoose.connect(process.env.MONGODB_URI, {
-  // Set shorter timeouts to fail fast and provide better diagnostics
-  serverSelectionTimeoutMS: 5000, // 5 seconds
-  socketTimeoutMS: 10000,
-  connectTimeoutMS: 10000,
-  family: 4 // Force IPv4
-})
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => {
-    console.error('Could not connect to MongoDB:', err);
-    // Don't crash the server on MongoDB connection failure
-    console.log('Continuing without MongoDB connection. Some features may not work.');
-  });
+// Replace MongoDB connection with Supabase connection status logging
+console.log('Initializing Supabase connection...');
+supabase.from('brands').select('count').then(({ data, error }) => {
+  if (error) {
+    console.error('Could not connect to Supabase:', error.message);
+  } else {
+    console.log('Connected to Supabase successfully');
+  }
+});
 
-// Add MongoDB connection status endpoint
-app.get('/api/db-status', (req, res) => {
-  const status = mongoose.connection.readyState;
-  const statusText = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  }[status];
+// Replace MongoDB status endpoint with Supabase status endpoint
+app.get('/api/db-status', async (req, res) => {
+  const { data, error } = await supabase.from('brands').select('count');
   
-  res.json({
-    status,
-    statusText,
-    message: status === 1 ? 'Database connected' : 'Database not connected'
-  });
+  if (error) {
+    res.json({
+      status: 0,
+      statusText: 'disconnected',
+      message: 'Database not connected: ' + error.message
+    });
+  } else {
+    res.json({
+      status: 1,
+      statusText: 'connected',
+      message: 'Supabase database connected'
+    });
+  }
 });
 
 // Middleware

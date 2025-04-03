@@ -5,8 +5,8 @@ const {
   getUserById, 
   updateUser, 
   deleteUser 
-} = require('../controllers/adminController');
-const { protect, authorize } = require('../middleware/auth');
+} = require('../controllers/adminController.supabase');
+const { protect, authorize } = require('../middleware/authMiddleware.supabase');
 
 const router = express.Router();
 
