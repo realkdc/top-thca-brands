@@ -7,12 +7,14 @@ const supabase = require('../utils/supabaseClient');
  */
 exports.submitContactForm = async (req, res) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, brandName, website, message } = req.body;
 
     // Validate input
-    if (!name || !email || !message) {
-      return res.status(400).json({ message: 'Please fill all fields' });
+    if (!name || !email || !brandName || !message) {
+      return res.status(400).json({ message: 'Please fill all required fields' });
     }
+
+    const now = new Date().toISOString();
 
     // Create contact submission
     const { data, error } = await supabase
@@ -21,8 +23,11 @@ exports.submitContactForm = async (req, res) => {
         {
           name,
           email,
+          brand_name: brandName,
+          website: website || null,
           message,
-          created_at: new Date().toISOString(),
+          created_at: now,
+          updated_at: now,
           status: 'pending' // Default status
         }
       ])
@@ -57,7 +62,21 @@ exports.getContactSubmissions = async (req, res) => {
 
     if (error) throw error;
 
-    res.json(data);
+    // Transform data for frontend compatibility
+    const transformedData = data.map(item => ({
+      _id: item.id,
+      name: item.name,
+      email: item.email,
+      brandName: item.brand_name,
+      website: item.website,
+      message: item.message,
+      status: item.status,
+      adminNotes: item.admin_notes,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }));
+
+    res.json(transformedData);
   } catch (error) {
     console.error('Get contacts error:', error);
     res.status(500).json({ message: error.message });
@@ -87,7 +106,21 @@ exports.getContactById = async (req, res) => {
       throw error;
     }
 
-    res.json(data);
+    // Transform data for frontend compatibility
+    const transformedData = {
+      _id: data.id,
+      name: data.name,
+      email: data.email,
+      brandName: data.brand_name,
+      website: data.website,
+      message: data.message,
+      status: data.status,
+      adminNotes: data.admin_notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
+
+    res.json(transformedData);
   } catch (error) {
     console.error('Get contact by ID error:', error);
     res.status(500).json({ message: error.message });
@@ -102,22 +135,25 @@ exports.getContactById = async (req, res) => {
 exports.updateContactStatus = async (req, res) => {
   try {
     const contactId = req.params.id;
-    const { status } = req.body;
+    const { status, adminNotes } = req.body;
 
     // Validate status
-    const validStatuses = ['pending', 'in_progress', 'completed', 'archived'];
+    const validStatuses = ['pending', 'reviewed', 'approved', 'rejected'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ 
         message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
       });
     }
 
+    const now = new Date().toISOString();
+
     // Update contact status
     const { data, error } = await supabase
       .from('contacts')
       .update({ 
         status,
-        updated_at: new Date().toISOString()
+        admin_notes: adminNotes || null,
+        updated_at: now
       })
       .eq('id', contactId)
       .select()
@@ -130,7 +166,21 @@ exports.updateContactStatus = async (req, res) => {
       throw error;
     }
 
-    res.json(data);
+    // Transform data for frontend compatibility
+    const transformedData = {
+      _id: data.id,
+      name: data.name,
+      email: data.email,
+      brandName: data.brand_name,
+      website: data.website,
+      message: data.message,
+      status: data.status,
+      adminNotes: data.admin_notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
+
+    res.json(transformedData);
   } catch (error) {
     console.error('Update contact status error:', error);
     res.status(500).json({ message: error.message });
