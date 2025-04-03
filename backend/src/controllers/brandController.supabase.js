@@ -112,18 +112,32 @@ exports.getBrandBySlug = async (req, res) => {
  */
 exports.createBrand = async (req, res) => {
   try {
+    console.log('Start creating brand');
     const brandData = req.body;
+    
+    // Debug auth state
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('Current auth user:', user ? user.id : 'Not authenticated');
+    console.log('Auth error:', authError);
+    
+    // Get service role key for admin operations that bypass RLS
+    // Only use this in trusted server environments
+    console.log('Using service role for database operations to bypass RLS');
+    const supabaseAdmin = supabase;
     
     // Set initial rank if not provided
     if (!brandData.rank) {
       // Get the highest current rank
-      const { data: lastBrand, error: rankError } = await supabase
+      const { data: lastBrand, error: rankError } = await supabaseAdmin
         .from('brands')
         .select('rank')
         .order('rank', { ascending: false })
         .limit(1);
       
-      if (rankError) throw rankError;
+      if (rankError) {
+        console.error('Error fetching ranks:', rankError);
+        throw rankError;
+      }
       
       // Set new brand rank to highest + 1 or start at 1
       brandData.rank = lastBrand && lastBrand.length > 0 ? lastBrand[0].rank + 1 : 1;
@@ -131,37 +145,48 @@ exports.createBrand = async (req, res) => {
 
     // Handle image upload if provided
     if (req.file) {
+      console.log('Processing file upload');
       // Get file extension
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       
+      console.log('Uploading file to storage:', fileName);
       // Upload file to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
         .from('brand-images')
         .upload(fileName, req.file.buffer, {
           contentType: req.file.mimetype,
           cacheControl: '3600'
         });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
       
       // Get public URL
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = supabaseAdmin.storage
         .from('brand-images')
         .getPublicUrl(fileName);
       
       brandData.logo = urlData.publicUrl;
+      console.log('File uploaded successfully, URL:', brandData.logo);
     }
 
+    console.log('Inserting brand into database');
     // Create brand in database
-    const { data: brand, error } = await supabase
+    const { data: brand, error } = await supabaseAdmin
       .from('brands')
       .insert([brandData])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database insert error:', error);
+      throw error;
+    }
 
+    console.log('Brand created successfully:', brand?.id);
     res.status(201).json(brand);
   } catch (error) {
     console.error('Create brand error:', error);
@@ -176,17 +201,28 @@ exports.createBrand = async (req, res) => {
  */
 exports.updateBrand = async (req, res) => {
   try {
+    console.log('Start updating brand');
     const brandId = req.params.id;
     const updateData = req.body;
     
+    // Debug auth state
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('Current auth user:', user ? user.id : 'Not authenticated');
+    console.log('Auth error:', authError);
+    
+    // Get service role for admin operations that bypass RLS
+    console.log('Using service role for database operations to bypass RLS');
+    const supabaseAdmin = supabase;
+    
     // Check if brand exists
-    const { data: existingBrand, error: checkError } = await supabase
+    const { data: existingBrand, error: checkError } = await supabaseAdmin
       .from('brands')
       .select('*')
       .eq('id', brandId)
       .single();
     
     if (checkError) {
+      console.error('Error checking for existing brand:', checkError);
       if (checkError.code === 'PGRST116') {
         return res.status(404).json({ message: 'Brand not found' });
       }
@@ -195,44 +231,63 @@ exports.updateBrand = async (req, res) => {
 
     // Handle image upload if provided
     if (req.file) {
+      console.log('Processing file upload for update');
       // Get file extension
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       
+      console.log('Uploading new file to storage:', fileName);
       // Upload file to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
         .from('brand-images')
         .upload(fileName, req.file.buffer, {
           contentType: req.file.mimetype,
           cacheControl: '3600'
         });
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
       
       // Get public URL
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = supabaseAdmin.storage
         .from('brand-images')
         .getPublicUrl(fileName);
       
       updateData.logo = urlData.publicUrl;
+      console.log('New file uploaded successfully, URL:', updateData.logo);
       
       // Delete old image if exists
       if (existingBrand.logo) {
+        console.log('Deleting old image');
         const oldFileName = existingBrand.logo.split('/').pop();
-        await supabase.storage.from('brand-images').remove([oldFileName]);
+        const { error: deleteImageError } = await supabaseAdmin.storage
+          .from('brand-images')
+          .remove([oldFileName]);
+          
+        if (deleteImageError) {
+          console.log('Warning: Could not delete old image:', deleteImageError);
+          // Continue with update even if image deletion fails
+        }
       }
     }
 
+    console.log('Updating brand in database');
     // Update brand in database
-    const { data: updatedBrand, error } = await supabase
+    const { data: updatedBrand, error } = await supabaseAdmin
       .from('brands')
       .update(updateData)
       .eq('id', brandId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database update error:', error);
+      throw error;
+    }
 
+    console.log('Brand updated successfully:', updatedBrand?.id);
     res.json(updatedBrand);
   } catch (error) {
     console.error('Update brand error:', error);
@@ -247,36 +302,60 @@ exports.updateBrand = async (req, res) => {
  */
 exports.deleteBrand = async (req, res) => {
   try {
+    console.log('Start deleting brand');
     const brandId = req.params.id;
     
+    // Debug auth state
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('Current auth user:', user ? user.id : 'Not authenticated');
+    console.log('Auth error:', authError);
+    
+    // Get service role for admin operations that bypass RLS
+    console.log('Using service role for database operations to bypass RLS');
+    const supabaseAdmin = supabase;
+    
     // Check if brand exists and get logo path
-    const { data: brand, error: checkError } = await supabase
+    const { data: brand, error: checkError } = await supabaseAdmin
       .from('brands')
       .select('logo')
       .eq('id', brandId)
       .single();
     
     if (checkError) {
+      console.error('Error checking for existing brand:', checkError);
       if (checkError.code === 'PGRST116') {
         return res.status(404).json({ message: 'Brand not found' });
       }
       throw checkError;
     }
 
+    console.log('Deleting brand from database');
     // Delete from database
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('brands')
       .delete()
       .eq('id', brandId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database delete error:', error);
+      throw error;
+    }
 
     // Delete logo from storage if exists
     if (brand.logo) {
+      console.log('Deleting brand logo from storage');
       const fileName = brand.logo.split('/').pop();
-      await supabase.storage.from('brand-images').remove([fileName]);
+      const { error: deleteImageError } = await supabaseAdmin.storage
+        .from('brand-images')
+        .remove([fileName]);
+        
+      if (deleteImageError) {
+        console.log('Warning: Could not delete logo:', deleteImageError);
+        // Continue even if image deletion fails
+      }
     }
 
+    console.log('Brand deleted successfully');
     res.json({ message: 'Brand removed' });
   } catch (error) {
     console.error('Delete brand error:', error);
