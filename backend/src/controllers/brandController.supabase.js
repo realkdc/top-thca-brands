@@ -37,6 +37,9 @@ function mapToSupabaseColumns(data) {
     } else if (key === 'rating') {
       // Skip rating field if it doesn't exist in the database
       // Could store as metadata or in a separate table if needed
+    } else if (key === 'image') {
+      // Skip image field as we'll handle it separately
+      // In Supabase we use 'logo' instead of 'image'
     } else {
       // For most fields, keep the original name
       mappedData[key] = data[key];
@@ -45,11 +48,6 @@ function mapToSupabaseColumns(data) {
   
   // Ensure required fields are set
   mappedData.is_active = true;
-  
-  // If we're handling file upload separately, don't include image field
-  if (mappedData.image) {
-    delete mappedData.image;
-  }
   
   console.log('Mapped data for Supabase (keeping original names):', mappedData);
   return mappedData;
@@ -183,23 +181,21 @@ exports.createBrand = async (req, res) => {
     // Map frontend field names to Supabase column names
     const brandData = mapToSupabaseColumns(frontendData);
     
-    // Set initial rank if not provided
-    if (!brandData.rank) {
-      // Get the highest current rank
-      const { data: lastBrand, error: rankError } = await supabaseAdmin
-        .from('brands')
-        .select('rank')
-        .order('rank', { ascending: false })
-        .limit(1);
-      
-      if (rankError) {
-        console.error('Error fetching ranks:', rankError);
-        throw rankError;
-      }
-      
-      // Set new brand rank to highest + 1 or start at 1
-      brandData.rank = lastBrand && lastBrand.length > 0 ? lastBrand[0].rank + 1 : 1;
+    // Set initial rank if not provided - ALWAYS set rank as it's NOT NULL
+    // Get the highest current rank
+    const { data: lastBrand, error: rankError } = await supabaseAdmin
+      .from('brands')
+      .select('rank')
+      .order('rank', { ascending: false })
+      .limit(1);
+    
+    if (rankError) {
+      console.error('Error fetching ranks:', rankError);
+      throw rankError;
     }
+    
+    // Set new brand rank to highest + 1 or start at 1
+    brandData.rank = lastBrand && lastBrand.length > 0 ? (lastBrand[0].rank + 1) : 1;
 
     // Handle image upload if provided
     if (req.file) {
@@ -227,9 +223,9 @@ exports.createBrand = async (req, res) => {
         .from('brand-images')
         .getPublicUrl(fileName);
       
-      // Use the same field name as in the frontend (image) 
-      brandData.image = urlData.publicUrl;
-      console.log('File uploaded successfully, URL:', brandData.image);
+      // Use logo field instead of image to match database schema
+      brandData.logo = urlData.publicUrl;
+      console.log('File uploaded successfully, URL:', brandData.logo);
     }
 
     console.log('Inserting brand into database with these fields:', Object.keys(brandData).join(', '));
@@ -317,13 +313,13 @@ exports.updateBrand = async (req, res) => {
         .from('brand-images')
         .getPublicUrl(fileName);
       
-      updateData.image = urlData.publicUrl;
-      console.log('New file uploaded successfully, URL:', updateData.image);
+      updateData.logo = urlData.publicUrl;
+      console.log('New file uploaded successfully, URL:', updateData.logo);
       
       // Delete old image if exists
-      if (existingBrand.image) {
+      if (existingBrand.logo) {
         console.log('Deleting old image');
-        const oldFileName = existingBrand.image.split('/').pop();
+        const oldFileName = existingBrand.logo.split('/').pop();
         const { error: deleteImageError } = await supabaseAdmin.storage
           .from('brand-images')
           .remove([oldFileName]);
@@ -379,7 +375,7 @@ exports.deleteBrand = async (req, res) => {
     // Check if brand exists and get image path
     const { data: brand, error: checkError } = await supabaseAdmin
       .from('brands')
-      .select('image')
+      .select('logo')
       .eq('id', brandId)
       .single();
     
@@ -404,9 +400,9 @@ exports.deleteBrand = async (req, res) => {
     }
 
     // Delete image from storage if exists
-    if (brand.image) {
+    if (brand.logo) {
       console.log('Deleting brand image from storage');
-      const fileName = brand.image.split('/').pop();
+      const fileName = brand.logo.split('/').pop();
       const { error: deleteImageError } = await supabaseAdmin.storage
         .from('brand-images')
         .remove([fileName]);
