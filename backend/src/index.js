@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL || '*',
   credentials: true
 }));
 app.use(helmet());
@@ -45,17 +45,19 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// Serve static frontend files in production
-if (process.env.NODE_ENV === 'production') {
-  // Set static folder
-  const frontendBuildPath = path.join(__dirname, '../../top-thca-brands-frontend/dist');
-  app.use(express.static(frontendBuildPath));
-  
-  // Serve the index.html for any route not caught by API
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
+// API root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Top THCA Brands API', 
+    version: '1.0.0',
+    endpoints: [
+      '/api/brands',
+      '/api/contact',
+      '/api/auth',
+      '/api/admin'
+    ] 
   });
-}
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
