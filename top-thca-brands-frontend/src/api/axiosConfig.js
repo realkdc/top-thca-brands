@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Make sure the API URL always has /api at the end if it doesn't already
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+
+// For debugging - remove in production
+console.log('API URL:', API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -29,6 +34,8 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error('API Error:', error);
+    
     // Handle 401 (Unauthorized) by redirecting to login
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
