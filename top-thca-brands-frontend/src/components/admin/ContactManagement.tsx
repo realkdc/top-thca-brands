@@ -139,6 +139,36 @@ const ContactManagement = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Helper to safely format dates
+  const formatDate = (dateString: string) => {
+    try {
+      // Check if dateString is valid
+      const timestamp = Date.parse(dateString);
+      if (isNaN(timestamp)) {
+        return 'Invalid date';
+      }
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Invalid date';
+    }
+  };
+  
+  // Helper for detail view date formatting with time
+  const formatDateTime = (dateString: string) => {
+    try {
+      // Check if dateString is valid
+      const timestamp = Date.parse(dateString);
+      if (isNaN(timestamp)) {
+        return 'Invalid date';
+      }
+      return format(new Date(dateString), 'MMM d, yyyy, h:mm a');
+    } catch (error) {
+      console.error('Error formatting date time:', dateString, error);
+      return 'Invalid date';
+    }
+  };
   
   if (loading) {
     return <div className="flex justify-center p-8">Loading contact submissions...</div>;
@@ -166,7 +196,7 @@ const ContactManagement = () => {
             {contacts.map(contact => (
               <tr key={contact._id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(new Date(contact.createdAt), 'MMM d, yyyy')}
+                  {formatDate(contact.createdAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{contact.name}</div>
@@ -213,7 +243,7 @@ const ContactManagement = () => {
             <DialogHeader>
               <DialogTitle>Contact Submission</DialogTitle>
               <DialogDescription>
-                Submitted on {currentContact.createdAt && format(new Date(currentContact.createdAt), 'MMM d, yyyy, h:mm a')}
+                Submitted on {currentContact.createdAt && formatDateTime(currentContact.createdAt)}
               </DialogDescription>
             </DialogHeader>
             
@@ -303,14 +333,13 @@ const ContactManagement = () => {
       
       {/* Delete Confirmation Dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this contact submission? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
           <DialogFooter>
             <Button variant="secondary" onClick={() => setConfirmDeleteOpen(false)}>
               Cancel
