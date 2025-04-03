@@ -49,8 +49,30 @@ app.get('/api/db-status', async (req, res) => {
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Define allowed origins - both with and without trailing slash
+    const allowedOrigins = [
+      'https://topthcabrands.netlify.app',
+      'https://topthcabrands.netlify.app/',
+      process.env.CLIENT_URL,
+      process.env.CLIENT_URL + '/',
+      'http://localhost:5173',
+      'http://localhost:5173/'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked request from:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(helmet());
 app.use(express.json());
@@ -59,6 +81,9 @@ app.use(morgan('dev'));
 
 // Static files directory for uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Add explicit handling for OPTIONS requests (CORS preflight)
+app.options('*', cors());
 
 // Routes
 app.use('/api/brands', brandRoutes);
