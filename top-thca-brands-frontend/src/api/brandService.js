@@ -3,9 +3,17 @@ import axiosInstance from './axiosConfig';
 // Get all brands
 export const getBrands = async () => {
   try {
+    console.log('Fetching brands from API...');
     const response = await axiosInstance.get('/brands');
+    console.log('Brands fetched successfully:', response.data.length);
     return response.data;
   } catch (error) {
+    console.error('Error fetching brands:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
     throw error;
   }
 };

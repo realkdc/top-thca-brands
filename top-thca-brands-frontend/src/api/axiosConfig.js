@@ -5,7 +5,10 @@ const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const API_URL = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
 
 // For debugging - remove in production
-console.log('API URL:', API_URL);
+console.log('Environment:', import.meta.env.MODE);
+console.log('Base URL from env:', baseUrl);
+console.log('API URL used:', API_URL);
+console.log('All env vars:', import.meta.env);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -17,6 +20,7 @@ const axiosInstance = axios.create({
 // Add a request interceptor to include auth token
 axiosInstance.interceptors.request.use(
   (config) => {
+    console.log('Axios request to:', config.baseURL + config.url);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -24,17 +28,22 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Axios request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Add a response interceptor to handle errors
+// Add a response interceptor for debugging
 axiosInstance.interceptors.response.use(
   (response) => {
+    console.log('Axios response from:', response.config.url, 'Status:', response.status);
     return response;
   },
   (error) => {
-    console.error('API Error:', error);
+    console.error('Axios response error:', error);
+    console.error('Response data:', error.response?.data);
+    console.error('Response status:', error.response?.status);
+    console.error('Response headers:', error.response?.headers);
     
     // Handle 401 (Unauthorized) by redirecting to login
     if (error.response && error.response.status === 401) {

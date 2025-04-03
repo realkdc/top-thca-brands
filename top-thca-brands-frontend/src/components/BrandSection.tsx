@@ -115,9 +115,9 @@ const BrandSection = () => {
 };
 
 const FeaturedBrandCard = ({ brand }: { brand: Brand }) => {
-  const imageUrl = brand.image.startsWith('http') 
+  const imageUrl = brand.image && brand.image.startsWith('http') 
     ? brand.image 
-    : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${brand.image}`;
+    : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${brand.image || ''}`;
 
   return (
     <div className="brand-card group p-0 flex flex-col md:flex-row overflow-hidden bg-gradient-to-br from-thca-grey/30 to-thca-grey/10">
@@ -126,6 +126,10 @@ const FeaturedBrandCard = ({ brand }: { brand: Brand }) => {
           src={imageUrl} 
           alt={brand.name} 
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            console.error('Featured image failed to load:', imageUrl);
+            e.currentTarget.src = 'https://via.placeholder.com/400x300?text=No+Image';
+          }}
         />
         <div className="absolute top-4 left-4">
           <span className="badge bg-thca-gold text-thca-black">
@@ -163,9 +167,12 @@ const FeaturedBrandCard = ({ brand }: { brand: Brand }) => {
 };
 
 const BrandCard = ({ brand }: { brand: Brand }) => {
-  const imageUrl = brand.image.startsWith('http') 
+  const imageUrl = brand.image && brand.image.startsWith('http') 
     ? brand.image 
-    : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${brand.image}`;
+    : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${brand.image || ''}`;
+
+  console.log('Brand data:', brand);
+  console.log('Image URL:', imageUrl);
 
   return (
     <div className="brand-card group overflow-hidden">
@@ -174,6 +181,10 @@ const BrandCard = ({ brand }: { brand: Brand }) => {
           src={imageUrl}
           alt={brand.name}
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            console.error('Image failed to load:', imageUrl);
+            e.currentTarget.src = 'https://via.placeholder.com/300x200?text=No+Image';
+          }}
         />
         <div className="absolute top-3 left-3">
           <span className="badge text-xs">
