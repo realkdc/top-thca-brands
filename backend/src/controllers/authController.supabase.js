@@ -77,30 +77,39 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    console.log(`Login attempt for email: ${email}`);
 
-    // Check if user exists
+    // Check if user exists - ignore case for email
     const { data: users, error } = await supabase
       .from('users')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .limit(1);
-
+      .select('*');
+      
     if (error) throw error;
     
-    if (!users || users.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    console.log(`Found ${users ? users.length : 0} total users in the database`);
+    
+    // Find user with case-insensitive match
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    
+    if (!user) {
+      console.log('No matching user found with this email');
+      return res.status(401).json({ message: 'Invalid credentials (user not found)' });
     }
-
-    const user = users[0];
+    
+    console.log(`Found user: ${user.name} (${user.email}) with role: ${user.role}`);
 
     // Check if password matches
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(`Password match result: ${isMatch}`);
+    
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials (password mismatch)' });
     }
 
     // Generate JWT
     const token = generateToken(user.id);
+    console.log('Login successful, token generated');
 
     res.json({
       _id: user.id,
