@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then cd ../top-thca-brands-frontend && npm install && npm run build; fi"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
