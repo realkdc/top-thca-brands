@@ -1,5 +1,47 @@
 const supabase = require('../utils/supabaseClient');
 
+// Mapping function to convert frontend field names to Supabase column names
+function mapToSupabaseColumns(data) {
+  const columnMap = {
+    // Frontend field name → Supabase column name
+    'name': 'name',
+    'description': 'description',
+    'category': 'brand_type', // Example: maybe 'category' is called 'brand_type' in Supabase
+    'rating': 'rating',
+    'featured': 'is_featured',
+    'website': 'website_url',
+    'productTypes': 'product_types',
+    'location': 'location',
+    'image': 'logo', // We handle this separately for file uploads
+    'rank': 'rank',
+    'slug': 'slug'
+  };
+
+  // Create a new object with the correct column names
+  const mappedData = {};
+  
+  // For debugging
+  console.log('Original data from frontend:', data);
+  
+  // Map each field to its Supabase column equivalent
+  Object.keys(data).forEach(key => {
+    if (columnMap[key]) {
+      mappedData[columnMap[key]] = data[key];
+    } else {
+      // Keep fields that don't need mapping
+      mappedData[key] = data[key];
+    }
+  });
+  
+  // Ensure we have some required fields
+  if (!mappedData.is_active && mappedData.is_active !== false) {
+    mappedData.is_active = true;
+  }
+  
+  console.log('Mapped data for Supabase:', mappedData);
+  return mappedData;
+}
+
 /**
  * @desc    Get all brands
  * @route   GET /api/brands
@@ -113,7 +155,7 @@ exports.getBrandBySlug = async (req, res) => {
 exports.createBrand = async (req, res) => {
   try {
     console.log('Start creating brand');
-    const brandData = req.body;
+    const frontendData = req.body;
     
     // Debug auth state
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -124,6 +166,9 @@ exports.createBrand = async (req, res) => {
     // Only use this in trusted server environments
     console.log('Using service role for database operations to bypass RLS');
     const supabaseAdmin = supabase;
+    
+    // Map frontend field names to Supabase column names
+    const brandData = mapToSupabaseColumns(frontendData);
     
     // Set initial rank if not provided
     if (!brandData.rank) {
@@ -173,7 +218,7 @@ exports.createBrand = async (req, res) => {
       console.log('File uploaded successfully, URL:', brandData.logo);
     }
 
-    console.log('Inserting brand into database');
+    console.log('Inserting brand into database with these fields:', Object.keys(brandData).join(', '));
     // Create brand in database
     const { data: brand, error } = await supabaseAdmin
       .from('brands')
@@ -203,7 +248,7 @@ exports.updateBrand = async (req, res) => {
   try {
     console.log('Start updating brand');
     const brandId = req.params.id;
-    const updateData = req.body;
+    const frontendData = req.body;
     
     // Debug auth state
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -213,6 +258,9 @@ exports.updateBrand = async (req, res) => {
     // Get service role for admin operations that bypass RLS
     console.log('Using service role for database operations to bypass RLS');
     const supabaseAdmin = supabase;
+    
+    // Map frontend field names to Supabase column names
+    const updateData = mapToSupabaseColumns(frontendData);
     
     // Check if brand exists
     const { data: existingBrand, error: checkError } = await supabaseAdmin
@@ -273,7 +321,7 @@ exports.updateBrand = async (req, res) => {
       }
     }
 
-    console.log('Updating brand in database');
+    console.log('Updating brand in database with these fields:', Object.keys(updateData).join(', '));
     // Update brand in database
     const { data: updatedBrand, error } = await supabaseAdmin
       .from('brands')
