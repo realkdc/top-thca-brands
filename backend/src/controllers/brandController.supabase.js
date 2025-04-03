@@ -9,15 +9,34 @@ function mapToSupabaseColumns(data) {
   // Keep most field names as they are, just handle special cases
   const mappedData = {};
   
+  // Add product types array if it doesn't exist
+  mappedData.product_types = [];
+  
   // Loop through all properties and add them to mapped data
   Object.keys(data).forEach(key => {
     // Handle special cases with different naming in frontend vs database
     if (key === 'featured') {
-      mappedData.is_featured = data[key];
+      // Skip featured field as it doesn't exist in the database
+      // We'll use this information in product_types instead
+      if (data[key] === 'true' || data[key] === true) {
+        mappedData.product_types.push('featured');
+      }
     } else if (key === 'productTypes') {
-      mappedData.product_types = data[key];
+      // Handle product types as an array
+      if (data[key]) {
+        const types = data[key].split(',').map(t => t.trim()).filter(t => t);
+        mappedData.product_types = [...mappedData.product_types, ...types];
+      }
     } else if (key === 'website') {
       mappedData.website_url = data[key];
+    } else if (key === 'category') {
+      // Store category as a product type if there's no category column
+      if (data[key]) {
+        mappedData.product_types.push(data[key]);
+      }
+    } else if (key === 'rating') {
+      // Skip rating field if it doesn't exist in the database
+      // Could store as metadata or in a separate table if needed
     } else {
       // For most fields, keep the original name
       mappedData[key] = data[key];
