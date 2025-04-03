@@ -233,41 +233,44 @@ const BrandManagement = () => {
   };
   
   if (loading) {
-    return <div className="flex justify-center p-8">Loading brands...</div>;
+    return <div className="flex justify-center p-8 text-gray-700">Loading brands...</div>;
   }
   
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-medium">Total Brands: {brands.length}</h3>
+        <h3 className="text-lg font-medium text-gray-800">Total Brands: {brands.length}</h3>
         <Button onClick={openCreateForm} className="flex items-center gap-2">
           <Plus size={16} /> Add Brand
         </Button>
       </div>
       
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Rating</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Featured</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {brands.map(brand => (
-              <tr key={brand._id}>
+              <tr key={brand._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
+                  <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden border">
                     <img 
-                      src={brand.image.startsWith('http') 
+                      src={brand.image?.startsWith('http') 
                         ? brand.image 
                         : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${brand.image}`} 
                       alt={brand.name} 
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/150?text=No+Image';
+                      }}
                     />
                   </div>
                 </td>
@@ -279,10 +282,10 @@ const BrandManagement = () => {
                     {brand.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {brand.rating.toFixed(1)}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {brand.rating?.toFixed(1) || '0.0'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {brand.featured ? 'Yes' : 'No'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -300,7 +303,7 @@ const BrandManagement = () => {
             
             {brands.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-700">
                   No brands found. Add your first brand to get started!
                 </td>
               </tr>
@@ -311,7 +314,7 @@ const BrandManagement = () => {
       
       {/* Brand Form Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl w-[90vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{currentBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
             <DialogDescription>
@@ -407,6 +410,7 @@ const BrandManagement = () => {
                   value={formData.description} 
                   onChange={handleInputChange}
                   required
+                  className="min-h-[100px]"
                 />
               </div>
               
@@ -421,8 +425,8 @@ const BrandManagement = () => {
                 </div>
               </div>
               
-              <div className="space-y-2 col-span-2">
-                <Label htmlFor="image">
+              <div className="space-y-2 col-span-2 bg-gray-50 p-4 rounded-md">
+                <Label htmlFor="image" className="block text-gray-700 font-medium mb-2">
                   {currentBrand ? 'Brand Image (leave empty to keep current)' : 'Brand Image *'}
                 </Label>
                 <Input 
@@ -431,16 +435,17 @@ const BrandManagement = () => {
                   type="file" 
                   accept="image/*"
                   onChange={handleFileChange}
+                  className="mb-3"
                 />
                 
                 {imagePreview && (
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500 mb-1">Preview:</p>
-                    <div className="w-32 h-32 bg-gray-100 rounded overflow-hidden">
+                    <p className="text-sm text-gray-500 mb-2">Preview:</p>
+                    <div className="w-full md:w-64 h-48 bg-gray-100 rounded overflow-hidden border">
                       <img 
                         src={imagePreview} 
                         alt="Preview" 
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                   </div>
@@ -448,8 +453,8 @@ const BrandManagement = () => {
               </div>
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setFormOpen(false)}>
+            <DialogFooter className="mt-6 pt-4 border-t">
+              <Button type="button" variant="secondary" onClick={() => setFormOpen(false)} className="mr-2">
                 Cancel
               </Button>
               <Button type="submit">

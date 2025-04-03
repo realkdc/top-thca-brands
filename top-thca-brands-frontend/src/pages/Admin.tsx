@@ -30,7 +30,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-100">
       <header className="bg-gray-900 text-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold">Top THCA Brands - Admin Dashboard</h1>
@@ -40,25 +40,25 @@ const Admin = () => {
       
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 mb-8">
-            <TabsTrigger value="brands">Brands</TabsTrigger>
-            <TabsTrigger value="contacts">Contact Submissions</TabsTrigger>
-            {isAdmin() && <TabsTrigger value="users">Users</TabsTrigger>}
+          <TabsList className="grid w-full md:w-auto grid-cols-3 mb-8 bg-slate-300">
+            <TabsTrigger value="brands" className="text-gray-800 data-[state=active]:bg-white data-[state=active]:text-primary">Brands</TabsTrigger>
+            <TabsTrigger value="contacts" className="text-gray-800 data-[state=active]:bg-white data-[state=active]:text-primary">Contact Submissions</TabsTrigger>
+            {isAdmin() && <TabsTrigger value="users" className="text-gray-800 data-[state=active]:bg-white data-[state=active]:text-primary">Users</TabsTrigger>}
           </TabsList>
           
-          <TabsContent value="brands" className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-6">Brand Management</h2>
+          <TabsContent value="brands" className="bg-white rounded-lg shadow-md p-6 text-gray-800">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">Brand Management</h2>
             <BrandManagement />
           </TabsContent>
           
-          <TabsContent value="contacts" className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-6">Contact Submissions</h2>
+          <TabsContent value="contacts" className="bg-white rounded-lg shadow-md p-6 text-gray-800">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">Contact Submissions</h2>
             <ContactManagement />
           </TabsContent>
           
           {isAdmin() && (
-            <TabsContent value="users" className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold mb-6">User Management</h2>
+            <TabsContent value="users" className="bg-white rounded-lg shadow-md p-6 text-gray-800">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">User Management</h2>
               <UserManagement />
             </TabsContent>
           )}
