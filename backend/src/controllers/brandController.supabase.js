@@ -2,43 +2,37 @@ const supabase = require('../utils/supabaseClient');
 
 // Mapping function to convert frontend field names to Supabase column names
 function mapToSupabaseColumns(data) {
-  const columnMap = {
-    // Frontend field name → Supabase column name
-    'name': 'name',
-    'description': 'description',
-    'category': 'brand_type', // Example: maybe 'category' is called 'brand_type' in Supabase
-    'rating': 'rating',
-    'featured': 'is_featured',
-    'website': 'website_url',
-    'productTypes': 'product_types',
-    'location': 'location',
-    'image': 'logo', // We handle this separately for file uploads
-    'rank': 'rank',
-    'slug': 'slug'
-  };
-
-  // Create a new object with the correct column names
-  const mappedData = {};
-  
-  // For debugging
+  // Show raw data for debugging
   console.log('Original data from frontend:', data);
   
-  // Map each field to its Supabase column equivalent
+  // For Supabase tables, use a sanitized version of the original names
+  // Keep most field names as they are, just handle special cases
+  const mappedData = {};
+  
+  // Loop through all properties and add them to mapped data
   Object.keys(data).forEach(key => {
-    if (columnMap[key]) {
-      mappedData[columnMap[key]] = data[key];
+    // Handle special cases with different naming in frontend vs database
+    if (key === 'featured') {
+      mappedData.is_featured = data[key];
+    } else if (key === 'productTypes') {
+      mappedData.product_types = data[key];
+    } else if (key === 'website') {
+      mappedData.website_url = data[key];
     } else {
-      // Keep fields that don't need mapping
+      // For most fields, keep the original name
       mappedData[key] = data[key];
     }
   });
   
-  // Ensure we have some required fields
-  if (!mappedData.is_active && mappedData.is_active !== false) {
-    mappedData.is_active = true;
+  // Ensure required fields are set
+  mappedData.is_active = true;
+  
+  // If we're handling file upload separately, don't include image field
+  if (mappedData.image) {
+    delete mappedData.image;
   }
   
-  console.log('Mapped data for Supabase:', mappedData);
+  console.log('Mapped data for Supabase (keeping original names):', mappedData);
   return mappedData;
 }
 
@@ -214,8 +208,9 @@ exports.createBrand = async (req, res) => {
         .from('brand-images')
         .getPublicUrl(fileName);
       
-      brandData.logo = urlData.publicUrl;
-      console.log('File uploaded successfully, URL:', brandData.logo);
+      // Use the same field name as in the frontend (image) 
+      brandData.image = urlData.publicUrl;
+      console.log('File uploaded successfully, URL:', brandData.image);
     }
 
     console.log('Inserting brand into database with these fields:', Object.keys(brandData).join(', '));
@@ -271,7 +266,7 @@ exports.updateBrand = async (req, res) => {
     
     if (checkError) {
       console.error('Error checking for existing brand:', checkError);
-      if (checkError.code === 'PGRST116') {
+      if (checkError.code === 'PGRST116' || checkError.message?.includes('No rows found')) {
         return res.status(404).json({ message: 'Brand not found' });
       }
       throw checkError;
@@ -303,13 +298,13 @@ exports.updateBrand = async (req, res) => {
         .from('brand-images')
         .getPublicUrl(fileName);
       
-      updateData.logo = urlData.publicUrl;
-      console.log('New file uploaded successfully, URL:', updateData.logo);
+      updateData.image = urlData.publicUrl;
+      console.log('New file uploaded successfully, URL:', updateData.image);
       
       // Delete old image if exists
-      if (existingBrand.logo) {
+      if (existingBrand.image) {
         console.log('Deleting old image');
-        const oldFileName = existingBrand.logo.split('/').pop();
+        const oldFileName = existingBrand.image.split('/').pop();
         const { error: deleteImageError } = await supabaseAdmin.storage
           .from('brand-images')
           .remove([oldFileName]);
@@ -362,10 +357,10 @@ exports.deleteBrand = async (req, res) => {
     console.log('Using service role for database operations to bypass RLS');
     const supabaseAdmin = supabase;
     
-    // Check if brand exists and get logo path
+    // Check if brand exists and get image path
     const { data: brand, error: checkError } = await supabaseAdmin
       .from('brands')
-      .select('logo')
+      .select('image')
       .eq('id', brandId)
       .single();
     
@@ -389,16 +384,16 @@ exports.deleteBrand = async (req, res) => {
       throw error;
     }
 
-    // Delete logo from storage if exists
-    if (brand.logo) {
-      console.log('Deleting brand logo from storage');
-      const fileName = brand.logo.split('/').pop();
+    // Delete image from storage if exists
+    if (brand.image) {
+      console.log('Deleting brand image from storage');
+      const fileName = brand.image.split('/').pop();
       const { error: deleteImageError } = await supabaseAdmin.storage
         .from('brand-images')
         .remove([fileName]);
         
       if (deleteImageError) {
-        console.log('Warning: Could not delete logo:', deleteImageError);
+        console.log('Warning: Could not delete image:', deleteImageError);
         // Continue even if image deletion fails
       }
     }
