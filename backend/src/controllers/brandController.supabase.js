@@ -62,6 +62,64 @@ function mapToSupabaseColumns(data) {
 }
 
 /**
+ * Convert Supabase brand data to MongoDB format for frontend compatibility
+ */
+function mapToFrontendFormat(brands) {
+  if (!Array.isArray(brands)) {
+    // Handle single brand object
+    return mapSingleBrandToFrontend(brands);
+  }
+  
+  // Handle array of brands
+  return brands.map(mapSingleBrandToFrontend);
+}
+
+/**
+ * Convert a single Supabase brand to MongoDB format
+ */
+function mapSingleBrandToFrontend(brand) {
+  if (!brand) return null;
+  
+  // Extract main category from product_types if available
+  let category = 'Other';
+  const mainCategories = ['Flower', 'Concentrate', 'Edibles', 'Vape'];
+  if (brand.product_types && Array.isArray(brand.product_types)) {
+    // Find the first main category in product_types
+    const foundCategory = brand.product_types.find(type => mainCategories.includes(type));
+    if (foundCategory) {
+      category = foundCategory;
+    }
+  }
+  
+  // Check if brand is featured based on product_types
+  const featured = brand.product_types && Array.isArray(brand.product_types) 
+    ? brand.product_types.includes('featured') 
+    : false;
+  
+  // Generate a slug if not present
+  const slug = brand.slug || brand.name.toLowerCase().replace(/\s+/g, '-');
+  
+  // Return brand in MongoDB format that frontend expects
+  return {
+    _id: brand.id,
+    name: brand.name,
+    image: brand.logo || '',
+    category: category,
+    rating: 5, // Default rating
+    description: brand.description || '',
+    featured: featured,
+    slug: slug,
+    website: brand.website_url || '',
+    productTypes: brand.product_types || [],
+    location: '',
+    // Keep Supabase fields for debugging
+    original_id: brand.id,
+    rank: brand.rank,
+    is_active: brand.is_active
+  };
+}
+
+/**
  * @desc    Get all brands
  * @route   GET /api/brands
  * @access  Public
@@ -69,7 +127,7 @@ function mapToSupabaseColumns(data) {
 exports.getBrands = async (req, res) => {
   try {
     // Query all active brands ordered by rank
-    const { data: brands, error } = await supabase
+    const { data: brandsData, error } = await supabase
       .from('brands')
       .select('*')
       .eq('is_active', true)
@@ -77,6 +135,9 @@ exports.getBrands = async (req, res) => {
 
     if (error) throw error;
 
+    // Transform to frontend format
+    const brands = mapToFrontendFormat(brandsData);
+    
     res.json(brands);
   } catch (error) {
     console.error('Get brands error:', error);
@@ -92,13 +153,16 @@ exports.getBrands = async (req, res) => {
 exports.getAdminBrands = async (req, res) => {
   try {
     // Query all brands ordered by rank for admin
-    const { data: brands, error } = await supabase
+    const { data: brandsData, error } = await supabase
       .from('brands')
       .select('*')
       .order('rank', { ascending: true });
 
     if (error) throw error;
 
+    // Transform to frontend format
+    const brands = mapToFrontendFormat(brandsData);
+    
     res.json(brands);
   } catch (error) {
     console.error('Get admin brands error:', error);
@@ -116,7 +180,7 @@ exports.getBrandById = async (req, res) => {
     const brandId = req.params.id;
 
     // Query brand by ID
-    const { data: brand, error } = await supabase
+    const { data: brandData, error } = await supabase
       .from('brands')
       .select('*')
       .eq('id', brandId)
@@ -129,6 +193,9 @@ exports.getBrandById = async (req, res) => {
       throw error;
     }
 
+    // Transform to frontend format
+    const brand = mapSingleBrandToFrontend(brandData);
+    
     res.json(brand);
   } catch (error) {
     console.error('Get brand by ID error:', error);
@@ -146,7 +213,7 @@ exports.getBrandBySlug = async (req, res) => {
     const slug = req.params.slug;
 
     // Query brand by slug
-    const { data: brand, error } = await supabase
+    const { data: brandData, error } = await supabase
       .from('brands')
       .select('*')
       .eq('slug', slug)
@@ -159,6 +226,9 @@ exports.getBrandBySlug = async (req, res) => {
       throw error;
     }
 
+    // Transform to frontend format
+    const brand = mapSingleBrandToFrontend(brandData);
+    
     res.json(brand);
   } catch (error) {
     console.error('Get brand by slug error:', error);
