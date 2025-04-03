@@ -19,15 +19,35 @@ const PORT = process.env.PORT || 5001;
 // Connect to MongoDB with improved options
 console.log('Connecting to MongoDB...');
 mongoose.connect(process.env.MONGODB_URI, {
-  // Add connection options to handle timeout issues
-  serverSelectionTimeoutMS: 30000, // 30 seconds
-  socketTimeoutMS: 45000, // 45 seconds
-  connectTimeoutMS: 30000, // 30 seconds
-  keepAlive: true,
-  keepAliveInitialDelay: 300000 // 5 minutes
+  // Set shorter timeouts to fail fast and provide better diagnostics
+  serverSelectionTimeoutMS: 5000, // 5 seconds
+  socketTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+  family: 4 // Force IPv4
 })
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB:', err));
+  .catch(err => {
+    console.error('Could not connect to MongoDB:', err);
+    // Don't crash the server on MongoDB connection failure
+    console.log('Continuing without MongoDB connection. Some features may not work.');
+  });
+
+// Add MongoDB connection status endpoint
+app.get('/api/db-status', (req, res) => {
+  const status = mongoose.connection.readyState;
+  const statusText = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  }[status];
+  
+  res.json({
+    status,
+    statusText,
+    message: status === 1 ? 'Database connected' : 'Database not connected'
+  });
+});
 
 // Middleware
 app.use(cors({
@@ -62,7 +82,8 @@ app.get('/', (req, res) => {
       '/api/brands',
       '/api/contact',
       '/api/auth',
-      '/api/admin'
+      '/api/admin',
+      '/api/db-status'
     ] 
   });
 });
