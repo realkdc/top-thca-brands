@@ -16,8 +16,16 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+// Connect to MongoDB with improved options
+console.log('Connecting to MongoDB...');
+mongoose.connect(process.env.MONGODB_URI, {
+  // Add connection options to handle timeout issues
+  serverSelectionTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 45000, // 45 seconds
+  connectTimeoutMS: 30000, // 30 seconds
+  keepAlive: true,
+  keepAliveInitialDelay: 300000 // 5 minutes
+})
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB:', err));
 
