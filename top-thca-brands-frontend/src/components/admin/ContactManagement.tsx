@@ -6,7 +6,7 @@ import {
 } from '@/api/contactService';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Trash2, Eye } from 'lucide-react';
+import { Trash2, Eye, MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -175,50 +175,52 @@ const ContactManagement = () => {
   }
   
   return (
-    <div>
+    <div className="p-4 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-medium">Total Submissions: {contacts.length}</h3>
+        <h3 className="text-xl font-semibold text-gray-800">Total Submissions: {contacts.length}</h3>
       </div>
       
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Brand</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {contacts.map(contact => (
-              <tr key={contact._id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <tr key={contact._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {formatDate(contact.createdAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{contact.name}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{contact.brandName}</div>
+                  <div className="text-sm font-medium text-gray-900">{contact.brandName}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {contact.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(contact.status)}`}>
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(contact.status)}`}>
                     {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => viewContact(contact)}>
-                      <Eye size={16} />
+                    <Button variant="outline" size="sm" onClick={() => viewContact(contact)} className="border-gray-300 hover:bg-gray-100 hover:text-gray-900 text-gray-700">
+                      <Eye size={16} className="mr-1" />
+                      <span>View</span>
                     </Button>
                     <Button variant="destructive" size="sm" onClick={() => confirmDelete(contact)}>
-                      <Trash2 size={16} />
+                      <Trash2 size={16} className="mr-1" />
+                      <span>Delete</span>
                     </Button>
                   </div>
                 </td>
@@ -239,30 +241,30 @@ const ContactManagement = () => {
       {/* View/Edit Contact Dialog */}
       {currentContact && (
         <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Contact Submission</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">Contact Submission</DialogTitle>
               <DialogDescription>
                 Submitted on {currentContact.createdAt && formatDateTime(currentContact.createdAt)}
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm text-gray-500">Name</Label>
-                <p className="font-medium">{currentContact.name}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Name</Label>
+                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.name}</p>
               </div>
-              <div>
-                <Label className="text-sm text-gray-500">Email</Label>
-                <p className="font-medium">{currentContact.email}</p>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Email</Label>
+                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.email}</p>
               </div>
-              <div>
-                <Label className="text-sm text-gray-500">Brand Name</Label>
-                <p className="font-medium">{currentContact.brandName}</p>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Brand Name</Label>
+                <p className="font-medium text-gray-900 p-2 bg-gray-50 rounded-md">{currentContact.brandName}</p>
               </div>
-              <div>
-                <Label className="text-sm text-gray-500">Website</Label>
-                <p className="font-medium">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Website</Label>
+                <p className="font-medium p-2 bg-gray-50 rounded-md">
                   {currentContact.website ? (
                     <a 
                       href={currentContact.website} 
@@ -279,23 +281,28 @@ const ContactManagement = () => {
               </div>
             </div>
             
-            <div className="mt-4">
-              <Label className="text-sm text-gray-500">Message</Label>
-              <div className="bg-gray-50 p-3 rounded mt-1 text-sm">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare size={16} className="text-gray-700" />
+                <Label className="text-sm font-medium text-gray-700">Message</Label>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-md border border-gray-200 text-gray-900 whitespace-pre-wrap max-h-[200px] overflow-y-auto">
                 {currentContact.message}
               </div>
             </div>
             
-            <div className="mt-6 space-y-4">
-              <h4 className="font-medium">Update Status</h4>
+            <div className="border-t border-gray-200 pt-6 space-y-4">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <span>Update Status</span>
+              </h4>
               
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status" className="text-sm font-medium text-gray-700">Status</Label>
                 <Select
                   value={statusData.status}
                   onValueChange={handleStatusChange}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full bg-white border-gray-300">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -308,22 +315,22 @@ const ContactManagement = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="adminNotes">Admin Notes</Label>
+                <Label htmlFor="adminNotes" className="text-sm font-medium text-gray-700">Admin Notes</Label>
                 <Textarea
                   id="adminNotes"
                   value={statusData.adminNotes}
                   onChange={handleNotesChange}
                   placeholder="Add notes about this submission..."
-                  className="min-h-[100px]"
+                  className="min-h-[100px] bg-white border-gray-300"
                 />
               </div>
             </div>
             
-            <DialogFooter>
-              <Button variant="secondary" onClick={() => setViewOpen(false)}>
+            <DialogFooter className="gap-2 mt-4">
+              <Button variant="outline" onClick={() => setViewOpen(false)} className="border-gray-300">
                 Close
               </Button>
-              <Button onClick={handleUpdateStatus}>
+              <Button onClick={handleUpdateStatus} className="bg-thca-red hover:bg-thca-red/90 text-white">
                 Update Status
               </Button>
             </DialogFooter>
@@ -335,13 +342,13 @@ const ContactManagement = () => {
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-semibold text-gray-900">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-gray-700">
               Are you sure you want to delete this contact submission? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setConfirmDeleteOpen(false)}>
+          <DialogFooter className="gap-2 mt-4">
+            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)} className="border-gray-300">
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
