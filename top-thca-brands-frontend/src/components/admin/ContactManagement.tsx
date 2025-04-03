@@ -241,45 +241,45 @@ const ContactManagement = () => {
       {/* View/Edit Contact Dialog */}
       {currentContact && (
         <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-          <DialogContent className="max-w-xs">
+          <DialogContent className="max-w-xs bg-gray-800">
             <DialogHeader className="pb-2">
-              <DialogTitle className="text-base font-bold text-black">Contact Submission</DialogTitle>
-              <DialogDescription className="text-xs font-medium text-gray-900">
+              <DialogTitle className="text-base font-bold text-white">Contact Submission</DialogTitle>
+              <DialogDescription className="text-xs font-medium text-gray-300">
                 Submitted on {currentContact.createdAt && formatDateTime(currentContact.createdAt)}
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-3">
               <div className="space-y-1">
-                <Label className="text-xs font-bold text-black">Name</Label>
-                <div className="text-sm font-medium text-black p-2 bg-gray-100 rounded border border-gray-300">
+                <Label className="text-xs font-bold text-white">Name</Label>
+                <div className="text-sm font-medium text-white p-2 bg-gray-700 rounded border border-gray-600">
                   {currentContact.name}
                 </div>
               </div>
               
               <div className="space-y-1">
-                <Label className="text-xs font-bold text-black">Email</Label>
-                <div className="text-sm font-medium text-black p-2 bg-gray-100 rounded border border-gray-300">
+                <Label className="text-xs font-bold text-white">Email</Label>
+                <div className="text-sm font-medium text-white p-2 bg-gray-700 rounded border border-gray-600">
                   {currentContact.email}
                 </div>
               </div>
               
               <div className="space-y-1">
-                <Label className="text-xs font-bold text-black">Brand Name</Label>
-                <div className="text-sm font-medium text-black p-2 bg-gray-100 rounded border border-gray-300">
+                <Label className="text-xs font-bold text-white">Brand Name</Label>
+                <div className="text-sm font-medium text-white p-2 bg-gray-700 rounded border border-gray-600">
                   {currentContact.brandName}
                 </div>
               </div>
               
               {currentContact.website && (
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold text-black">Website</Label>
-                  <div className="text-sm font-medium p-2 bg-gray-100 rounded border border-gray-300">
+                  <Label className="text-xs font-bold text-white">Website</Label>
+                  <div className="text-sm font-medium p-2 bg-gray-700 rounded border border-gray-600">
                     <a 
                       href={currentContact.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-700 hover:underline font-bold"
+                      className="text-blue-300 hover:underline font-bold"
                     >
                       {currentContact.website}
                     </a>
@@ -288,53 +288,53 @@ const ContactManagement = () => {
               )}
               
               <div className="space-y-1">
-                <Label className="text-xs font-bold text-black flex items-center gap-1">
-                  <MessageSquare size={12} className="text-black" />
+                <Label className="text-xs font-bold text-white flex items-center gap-1">
+                  <MessageSquare size={12} className="text-white" />
                   Message
                 </Label>
-                <div className="text-sm bg-gray-100 p-2 rounded border border-gray-300 text-black whitespace-pre-wrap max-h-[100px] overflow-y-auto">
+                <div className="text-sm bg-gray-700 p-2 rounded border border-gray-600 text-white whitespace-pre-wrap max-h-[100px] overflow-y-auto">
                   {currentContact.message}
                 </div>
               </div>
             </div>
             
-            <div className="border-t border-gray-300 mt-3 pt-3">
-              <h4 className="text-sm font-bold text-black mb-2">Update Status</h4>
+            <div className="border-t border-gray-600 mt-3 pt-3">
+              <h4 className="text-sm font-bold text-white mb-2">Update Status</h4>
               
               <div className="space-y-2">
                 <div className="space-y-1">
-                  <Label htmlFor="status" className="text-xs font-bold text-black">Status</Label>
+                  <Label htmlFor="status" className="text-xs font-bold text-white">Status</Label>
                   <Select
                     value={statusData.status}
                     onValueChange={handleStatusChange}
                   >
-                    <SelectTrigger className="h-8 text-xs bg-white border-gray-400 text-black font-medium">
+                    <SelectTrigger className="h-8 text-xs bg-gray-700 border-gray-600 text-white font-medium">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending" className="text-black font-medium">Pending</SelectItem>
-                      <SelectItem value="reviewed" className="text-black font-medium">Reviewed</SelectItem>
-                      <SelectItem value="approved" className="text-black font-medium">Approved</SelectItem>
-                      <SelectItem value="rejected" className="text-black font-medium">Rejected</SelectItem>
+                    <SelectContent className="bg-gray-700 border-gray-600 text-white">
+                      <SelectItem value="pending" className="text-white font-medium">Pending</SelectItem>
+                      <SelectItem value="reviewed" className="text-white font-medium">Reviewed</SelectItem>
+                      <SelectItem value="approved" className="text-white font-medium">Approved</SelectItem>
+                      <SelectItem value="rejected" className="text-white font-medium">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-1">
-                  <Label htmlFor="adminNotes" className="text-xs font-bold text-black">Admin Notes</Label>
+                  <Label htmlFor="adminNotes" className="text-xs font-bold text-white">Admin Notes</Label>
                   <Textarea
                     id="adminNotes"
                     value={statusData.adminNotes}
                     onChange={handleNotesChange}
                     placeholder="Add notes about this submission..."
-                    className="min-h-[60px] max-h-[100px] text-xs bg-white border-gray-400 text-black"
+                    className="min-h-[60px] max-h-[100px] text-xs bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
               </div>
             </div>
             
-            <DialogFooter className="flex justify-between mt-3 pt-2 border-t border-gray-300">
-              <Button variant="outline" size="sm" onClick={() => setViewOpen(false)} className="h-8 text-xs border-gray-400 bg-white text-black font-medium">
+            <DialogFooter className="flex justify-between mt-3 pt-2 border-t border-gray-600">
+              <Button variant="outline" size="sm" onClick={() => setViewOpen(false)} className="h-8 text-xs border-gray-600 bg-gray-700 text-white font-medium">
                 Close
               </Button>
               <Button size="sm" onClick={handleUpdateStatus} className="h-8 text-xs bg-thca-red hover:bg-thca-red/90 text-white font-bold">
@@ -347,15 +347,15 @@ const ContactManagement = () => {
       
       {/* Delete Confirmation Dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-        <DialogContent className="max-w-xs">
+        <DialogContent className="max-w-xs bg-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold text-black">Confirm Delete</DialogTitle>
-            <DialogDescription className="text-sm text-black">
+            <DialogTitle className="text-base font-bold text-white">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-sm text-gray-300">
               Are you sure you want to delete this contact submission? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-between mt-4">
-            <Button variant="outline" size="sm" onClick={() => setConfirmDeleteOpen(false)} className="h-8 text-xs border-gray-400 bg-white text-black font-medium">
+            <Button variant="outline" size="sm" onClick={() => setConfirmDeleteOpen(false)} className="h-8 text-xs border-gray-600 bg-gray-700 text-white font-medium">
               Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={handleDelete} className="h-8 text-xs font-bold">
