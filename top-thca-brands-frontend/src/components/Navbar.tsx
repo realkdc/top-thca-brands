@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Shield } from 'lucide-react';
+import { Shield, X } from 'lucide-react';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +20,10 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
     <header
@@ -43,12 +47,34 @@ const Navbar = () => {
           </NavLink>
         </nav>
         
-        <button className="md:hidden text-thca-white">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
+        <button 
+          className="md:hidden text-thca-white"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle mobile menu"
+        >
+          {mobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          )}
         </button>
       </div>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-[60px] bg-thca-black/95 backdrop-blur-md z-40 p-6">
+          <nav className="flex flex-col items-center gap-6 pt-6">
+            <NavLink href="#brands" className="text-xl" onClick={() => setMobileMenuOpen(false)}>Brands</NavLink>
+            <NavLink href="#about" className="text-xl" onClick={() => setMobileMenuOpen(false)}>About Us</NavLink>
+            <NavLink href="#criteria" className="text-xl" onClick={() => setMobileMenuOpen(false)}>Criteria</NavLink>
+            <NavLink href="#contact" className="bg-thca-red hover:bg-thca-red/80 px-6 py-3 rounded transition-colors text-xl" onClick={() => setMobileMenuOpen(false)}>
+              Contact
+            </NavLink>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
@@ -56,11 +82,13 @@ const Navbar = () => {
 const NavLink = ({ 
   href,
   className, 
-  children 
+  children,
+  onClick
 }: { 
   href: string;
   className?: string; 
-  children: React.ReactNode 
+  children: React.ReactNode;
+  onClick?: () => void;
 }) => {
   return (
     <a 
@@ -69,6 +97,7 @@ const NavLink = ({
         "font-medium text-thca-white hover:text-thca-gold transition-colors",
         className
       )}
+      onClick={onClick}
     >
       {children}
     </a>
