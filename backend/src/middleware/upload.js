@@ -8,19 +8,6 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Set up storage engine for multer
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function(req, file, cb) {
-    // Create unique filename with original extension
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const fileExt = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + fileExt);
-  }
-});
-
 // File filter to only allow image files
 const fileFilter = (req, file, cb) => {
   // Accept only image files
@@ -31,9 +18,10 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Create multer upload instance
+// Create multer upload instance using memory storage instead of disk
+// This allows us to access the file buffer for Supabase storage uploads
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(), // Use memory storage for Supabase
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },

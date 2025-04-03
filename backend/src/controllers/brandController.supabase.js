@@ -278,37 +278,52 @@ exports.createBrand = async (req, res) => {
     // Handle image upload if provided
     if (req.file) {
       console.log('Processing file upload');
+      console.log('File details:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        buffer: req.file.buffer ? 'Buffer present' : 'No buffer'
+      });
+      
       // Get file extension
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       
       console.log('Uploading file to storage:', fileName);
-      // Upload file to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-        .from('brand-images')
-        .upload(fileName, req.file.buffer, {
-          contentType: req.file.mimetype,
-          cacheControl: '3600'
-        });
       
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw uploadError;
+      try {
+        // Upload file to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+          .from('brand-images')
+          .upload(fileName, req.file.buffer, {
+            contentType: req.file.mimetype,
+            cacheControl: '3600'
+          });
+        
+        if (uploadError) {
+          console.error('Storage upload error:', uploadError);
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data: urlData } = supabaseAdmin.storage
+          .from('brand-images')
+          .getPublicUrl(fileName);
+        
+        // Use logo field instead of image to match database schema
+        brandData.logo = urlData.publicUrl;
+        console.log('File uploaded successfully, URL:', brandData.logo);
+      } catch (uploadErr) {
+        console.error('Error during file upload process:', uploadErr);
+        throw uploadErr;
       }
-      
-      // Get public URL
-      const { data: urlData } = supabaseAdmin.storage
-        .from('brand-images')
-        .getPublicUrl(fileName);
-      
-      // Use logo field instead of image to match database schema
-      brandData.logo = urlData.publicUrl;
-      console.log('File uploaded successfully, URL:', brandData.logo);
+    } else {
+      console.log('No file uploaded with the request');
     }
 
     console.log('Inserting brand into database with these fields:', Object.keys(brandData).join(', '));
     // Create brand in database
-    const { data: brand, error } = await supabaseAdmin
+    const { data: brandDataResult, error } = await supabaseAdmin
       .from('brands')
       .insert([brandData])
       .select()
@@ -319,7 +334,10 @@ exports.createBrand = async (req, res) => {
       throw error;
     }
 
-    console.log('Brand created successfully:', brand?.id);
+    // Transform to frontend format for response
+    const brand = mapSingleBrandToFrontend(brandDataResult);
+    
+    console.log('Brand created successfully:', brand._id);
     res.status(201).json(brand);
   } catch (error) {
     console.error('Create brand error:', error);
@@ -347,9 +365,6 @@ exports.updateBrand = async (req, res) => {
     console.log('Using service role for database operations to bypass RLS');
     const supabaseAdmin = supabase;
     
-    // Map frontend field names to Supabase column names
-    const updateData = mapToSupabaseColumns(frontendData);
-    
     // Check if brand exists
     const { data: existingBrand, error: checkError } = await supabaseAdmin
       .from('brands')
@@ -364,6 +379,45 @@ exports.updateBrand = async (req, res) => {
       }
       throw checkError;
     }
+
+    // Map frontend field names to Supabase column names - careful to only include fields that exist
+    const mappedData = {};
+    
+    // Process category as product_types
+    let productTypes = [...(existingBrand.product_types || [])];
+    
+    // Filter out old category values to avoid duplicates
+    const mainCategories = ['Flower', 'Concentrate', 'Edibles', 'Vape', 'Other'];
+    productTypes = productTypes.filter(type => !mainCategories.includes(type));
+    
+    // Add new category 
+    if (frontendData.category) {
+      productTypes.push(frontendData.category);
+    }
+    
+    // Handle featured status in product_types
+    if (frontendData.featured !== undefined) {
+      // Remove 'featured' if it exists
+      productTypes = productTypes.filter(type => type !== 'featured');
+      
+      // Add 'featured' back if it should be featured
+      if (frontendData.featured === true || frontendData.featured === 'true') {
+        productTypes.push('featured');
+      }
+    }
+    
+    // Set the confirmed fields that exist in the database
+    mappedData.name = frontendData.name;
+    mappedData.description = frontendData.description;
+    mappedData.product_types = productTypes;
+    
+    // Map website if provided
+    if (frontendData.website) {
+      mappedData.website_url = frontendData.website;
+    }
+    
+    console.log('Original data from frontend:', frontendData);
+    console.log('Mapped data for update:', mappedData);
 
     // Handle image upload if provided
     if (req.file) {
@@ -391,8 +445,8 @@ exports.updateBrand = async (req, res) => {
         .from('brand-images')
         .getPublicUrl(fileName);
       
-      updateData.logo = urlData.publicUrl;
-      console.log('New file uploaded successfully, URL:', updateData.logo);
+      mappedData.logo = urlData.publicUrl;
+      console.log('New file uploaded successfully, URL:', mappedData.logo);
       
       // Delete old image if exists
       if (existingBrand.logo) {
@@ -409,11 +463,11 @@ exports.updateBrand = async (req, res) => {
       }
     }
 
-    console.log('Updating brand in database with these fields:', Object.keys(updateData).join(', '));
+    console.log('Updating brand in database with these fields:', Object.keys(mappedData).join(', '));
     // Update brand in database
-    const { data: updatedBrand, error } = await supabaseAdmin
+    const { data: updatedBrandData, error } = await supabaseAdmin
       .from('brands')
-      .update(updateData)
+      .update(mappedData)
       .eq('id', brandId)
       .select()
       .single();
@@ -423,7 +477,10 @@ exports.updateBrand = async (req, res) => {
       throw error;
     }
 
-    console.log('Brand updated successfully:', updatedBrand?.id);
+    // Transform to frontend format
+    const updatedBrand = mapSingleBrandToFrontend(updatedBrandData);
+    
+    console.log('Brand updated successfully:', updatedBrand._id);
     res.json(updatedBrand);
   } catch (error) {
     console.error('Update brand error:', error);
