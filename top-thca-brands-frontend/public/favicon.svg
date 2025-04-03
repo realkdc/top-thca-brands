@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Background -->
+  <rect width="64" height="64" fill="#171717" rx="8"/>
+  
+  <!-- Shield icon (red) -->
+  <path d="M32 14C37.33 18 43.33 20 50 20V36C50 45 42.67 52.67 32 58C21.33 52.67 14 45 14 36V20C20.67 20 26.67 18 32 14Z" fill="#a10000" stroke="#a10000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Flame icon (gold) overlaid on shield -->
+  <path d="M32 46C36.5 46 40 42.5 40 38C40 33.5 37 31 35 29C34.5 28.5 34.5 27.5 35 27C35.5 26.5 36 26 36 24.5C36 23.5 35.33 23 35 23C35 27 31.5 28 31 31C30.83 32 31.67 33 32 33C35 33 35 36 33 36C31 36 31 34 31 33C28 34 27 36.5 27 38.5C27 42.5 30 46 32 46Z" fill="#d49000" stroke="#d49000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg> 
