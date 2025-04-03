@@ -3,7 +3,12 @@ import axiosInstance from './axiosConfig';
 // Login user
 export const login = async (credentials) => {
   try {
+    console.log('Attempting login with:', { email: credentials.email, passwordLength: credentials.password?.length });
+    console.log('API endpoint:', `${axiosInstance.defaults.baseURL}/auth/login`);
+    
     const response = await axiosInstance.post('/auth/login', credentials);
+    
+    console.log('Login response:', response.data);
     
     if (response.data.token) {
       // Store token and user data in localStorage
@@ -18,6 +23,7 @@ export const login = async (credentials) => {
     
     return response.data;
   } catch (error) {
+    console.error('Login error details:', error);
     throw error;
   }
 };
