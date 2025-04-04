@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting to Smoky Mountain CBD</title>
+    <meta http-equiv="refresh" content="0;url=https://www.smokymountaincbd.com/">
+    <script>
+      // Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramString = urlParams.toString();
+      
+      // Build the redirect URL with parameters if they exist
+      const baseUrl = "https://www.smokymountaincbd.com/";
+      const redirectUrl = paramString ? 
+        baseUrl + (baseUrl.includes('?') ? '&' : '?') + paramString :
+        baseUrl;
+        
+      // Redirect
+      window.location.href = redirectUrl;
+    </script>
+  </head>
+  <body>
+    <p>If you are not redirected, <a href="https://www.smokymountaincbd.com/">click here</a>.</p>
+  </body>
+</html> 
