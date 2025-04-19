@@ -38,3 +38,11 @@ Thumbs.db
 # Uploads directory content except .gitkeep
 backend/uploads/*
 !backend/uploads/.gitkeep 
+
+# Developer documentation
+top-thca-brands-frontend/DEVELOPER_NOTES.md
+DEVELOPER_NOTES.md
+
+# Admin scripts
+createAdmin.js
+forceCreateAdmin.js 
