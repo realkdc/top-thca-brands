@@ -50,4 +50,13 @@ forceCreateAdmin.js
 # Migration files
 backend/run-migration.js
 backend/migrations/add_*.sql
-backend/setupBucket.js 
+backend/setupBucket.js
+
+# Temporary files
+**/temp/
+**/temp-*/
+**/*.tmp
+**/*.bak
+**/*~
+**/.backup/
+**/models.backup/ 
