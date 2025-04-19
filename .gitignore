@@ -46,3 +46,8 @@ DEVELOPER_NOTES.md
 # Admin scripts
 createAdmin.js
 forceCreateAdmin.js 
+
+# Migration files
+backend/run-migration.js
+backend/migrations/add_*.sql
+backend/setupBucket.js 
