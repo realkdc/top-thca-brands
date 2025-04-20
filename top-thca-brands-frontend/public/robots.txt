@@ -1,14 +1,24 @@
+# TopTHCABrands.com robots.txt
+# Main directives for all bots
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+
+# Google-specific
 User-agent: Googlebot
 Allow: /
 
+# Bing-specific
 User-agent: Bingbot
 Allow: /
 
+# Social media crawlers
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Sitemap location
+Sitemap: https://topthcabrands.com/sitemap.xml
