@@ -114,7 +114,7 @@ const LeaderboardSection = () => {
             <Info size={14} className="mr-2" />
             <span>
               Click column headers to sort. Ratings are crowdsourced from our community. 
-              <CriteriaTooltip />
+              <CriteriaTooltip type="overall" />
             </span>
           </div>
         </div>
