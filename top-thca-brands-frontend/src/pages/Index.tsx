@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import BrandSection from "@/components/BrandSection";
@@ -6,6 +5,7 @@ import AboutSection from "@/components/AboutSection";
 import CriteriaSection from "@/components/CriteriaSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import LeaderboardSection from "@/components/leaderboard/LeaderboardSection";
 
 const Index = () => {
   return (
@@ -13,6 +13,7 @@ const Index = () => {
       <Navbar />
       <Hero />
       <BrandSection />
+      <LeaderboardSection />
       <AboutSection />
       <CriteriaSection />
       <ContactSection />
