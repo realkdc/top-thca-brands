@@ -16,7 +16,7 @@ Top THCA Brands is a curated directory of premium THCA products and brands, serv
 - [Database Options](#database-options)
 - [API Structure](#api-structure)
 - [Deployment](#deployment)
-- [Traffic & Analytics](#traffic--analytics)
+- [SEO & Analytics](#seo--analytics)
 - [Troubleshooting](#troubleshooting)
 
 ## Tech Stack
@@ -48,7 +48,14 @@ The project consists of two main parts:
 /
 ├── top-thca-brands-frontend/   # React/TypeScript frontend
 │   ├── public/                 # Static assets
-│   │   └── index.html          # HTML entry point with GA tracking
+│   │   ├── robots.txt          # SEO control for crawlers
+│   │   └── sitemap.xml         # XML sitemap for search engines
+│   ├── scripts/                # Utility scripts, including sitemap generator
+│   ├── src/                    # Main frontend source code
+│   │   ├── components/         # Reusable UI components
+│   │   ├── api/                # API service layers
+│   │   ├── pages/              # Page components
+│   │   └── hooks/              # Custom React hooks
 │   └── index.html              # HTML entry point with GA tracking
 │
 └── backend/                    # Node.js/Express backend
@@ -156,6 +163,7 @@ The project consists of two main parts:
 
 ### Public Website
 - **Brand Showcase**: Curated listing of premium THCA brands
+- **Brand Leaderboard**: Community-rated rankings with detailed ratings
 - **Submission Form**: Contact form for brand submission requests
 - **Responsive Design**: Mobile and desktop optimized interface
 - **Redirect System**: Tracks external referral traffic (/go/smoky endpoint)
@@ -247,7 +255,23 @@ The application originally used MongoDB and still has legacy support:
 4. Set environment variables:
    - All the variables from your `.env` file
 
-## Traffic & Analytics
+## SEO & Analytics
+
+### SEO Optimizations
+- **Structured Data**: JSON-LD markup for better search results
+  - WebSite schema
+  - Organization schema
+  - ItemList schema for the brand leaderboard
+- **Meta Tags**: Complete set of meta tags for optimal indexing
+  - Title and description tags
+  - Open Graph tags for social sharing
+  - Twitter Card tags
+- **Sitemap**: Auto-generated sitemap.xml
+  - Updated on each build
+  - Submitted to search engines
+- **Robots.txt**: Enhanced crawler control
+  - Directives for major search engines
+  - Protection of admin routes
 
 ### Google Analytics
 - **Tracking ID**: G-3GRNBSGY9H
