@@ -1,26 +1,106 @@
 # Top THCA Brands Website
 
-This is a full-stack application for the Top THCA Brands website, showcasing premium THCA brands with a content management system.
+A professional website showcasing premium THCA brands with a content management system, brand submission functionality, and traffic tracking capabilities.
+
+## Project Overview
+
+Top THCA Brands is a curated directory of premium THCA products and brands, serving as an authority for spotlighting elite THCA brands. The platform includes both a public-facing website and an admin dashboard for content management.
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [System Architecture](#system-architecture)
+- [Installation & Setup](#installation--setup)
+- [Key Features](#key-features)
+- [Database Options](#database-options)
+- [API Structure](#api-structure)
+- [Deployment](#deployment)
+- [Traffic & Analytics](#traffic--analytics)
+- [Troubleshooting](#troubleshooting)
+
+## Tech Stack
+
+### Frontend
+- **Framework**: React + TypeScript
+- **Build Tool**: Vite
+- **UI Components**: Custom components with Tailwind CSS
+- **State Management**: React Hooks
+- **Routing**: React Router
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express
+- **Database**: Supabase (PostgreSQL) with MongoDB migration support
+- **Authentication**: JWT with Supabase Auth
+- **Storage**: Supabase Storage for brand images
+
+### Infrastructure
+- **Frontend Hosting**: Netlify
+- **Backend Hosting**: Render
+- **Analytics**: Google Analytics (GA4)
 
 ## Project Structure
 
 The project consists of two main parts:
-- `top-thca-brands-frontend`: A React/TypeScript frontend built with Vite
-- `backend`: A Node.js/Express backend with MongoDB
 
-## Prerequisites
+```
+/
+├── top-thca-brands-frontend/   # React/TypeScript frontend
+│   ├── public/                 # Static assets
+│   │   └── index.html          # HTML entry point with GA tracking
+│   └── index.html              # HTML entry point with GA tracking
+│
+└── backend/                    # Node.js/Express backend
+    ├── src/                    # Source code
+    │   ├── controllers/        # Route controllers
+    │   ├── middleware/         # Express middleware
+    │   ├── models/             # Data models
+    │   ├── routes/             # API routes
+    │   └── utils/              # Utility functions
+    └── migrations/             # Database migration scripts
+```
 
-- Node.js (v14 or later)
-- For development: MongoDB (installed locally) or a MongoDB Atlas account
-- npm or yarn package manager
+## System Architecture
 
-## Getting Started
+```
+                  ┌───────────────┐
+                  │   Netlify     │
+                  │  (Frontend)   │
+                  └───────┬───────┘
+                          │
+                          ▼
+┌─────────────┐    ┌───────────────┐    ┌───────────────┐
+│ Web Browser │◄───┤  React App    │    │  Google       │
+│ (User)      │    │  (Vite)       │───►│  Analytics    │
+└─────────────┘    └───────┬───────┘    └───────────────┘
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │    Render     │
+                  │   (Backend)   │
+                  └───────┬───────┘
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │   Supabase    │
+                  │  (Database)   │
+                  └───────────────┘
+```
+
+## Installation & Setup
+
+### Prerequisites
+- Node.js (v14+)
+- npm or yarn
+- Git
+- Supabase account (or MongoDB account if using MongoDB)
 
 ### Backend Setup
-
-1. Navigate to the backend directory:
+1. Clone the repository and navigate to backend directory:
    ```bash
-   cd backend
+   git clone https://github.com/realkdc/top-thca-brands.git
+   cd top-thca-brands/backend
    ```
 
 2. Install dependencies:
@@ -29,16 +109,16 @@ The project consists of two main parts:
    ```
 
 3. Configure environment variables:
-   - Create a `.env` file in the backend directory if it doesn't exist
-   - Set the following variables (update as needed):
-     ```
-     PORT=5001
-     # MongoDB Atlas connection (already configured)
-     MONGODB_URI=mongodb+srv://indieplantmarketing:<password>@topthcabrands.ea79zxn.mongodb.net/?retryWrites=true&w=majority&appName=topthcabrands
-     JWT_SECRET=your_secure_jwt_key_here
-     NODE_ENV=development
-     CLIENT_URL=http://localhost:5173
-     ```
+   ```
+   # Create a .env file with these variables
+   PORT=5001
+   SUPABASE_URL=https://your-project-ref.supabase.co
+   SUPABASE_KEY=your-anon-key
+   SUPABASE_SERVICE_KEY=your-service-key
+   JWT_SECRET=your_secure_jwt_key_here
+   NODE_ENV=development
+   CLIENT_URL=http://localhost:5173
+   ```
 
 4. Start the backend server:
    ```bash
@@ -46,10 +126,9 @@ The project consists of two main parts:
    ```
 
 ### Frontend Setup
-
 1. Navigate to the frontend directory:
    ```bash
-   cd top-thca-brands-frontend
+   cd ../top-thca-brands-frontend
    ```
 
 2. Install dependencies:
@@ -58,178 +137,178 @@ The project consists of two main parts:
    ```
 
 3. Configure environment variables:
-   - Create a `.env.development` file if it doesn't exist
-   - Set the following variables:
-     ```
-     VITE_API_URL=http://localhost:5001
-     ```
+   ```
+   # Create a .env.development file
+   VITE_API_URL=http://localhost:5001
+   ```
 
 4. Start the frontend development server:
    ```bash
    npm run dev
    ```
 
-## Accessing the Application
+5. Access the application:
+   - Frontend: http://localhost:5173
+   - Admin Dashboard: http://localhost:5173/admin
+   - Redirect: http://localhost:5173/go/smoky (for testing referral tracking)
 
-- **Frontend Website**: http://localhost:5173
-- **Admin Dashboard**: http://localhost:5173/admin
-  - You'll need to create an initial admin user (see below)
+## Key Features
 
-## Creating an Initial Admin User
+### Public Website
+- **Brand Showcase**: Curated listing of premium THCA brands
+- **Submission Form**: Contact form for brand submission requests
+- **Responsive Design**: Mobile and desktop optimized interface
+- **Redirect System**: Tracks external referral traffic (/go/smoky endpoint)
 
-To create your first admin user, you can use the MongoDB shell or a tool like MongoDB Compass, or run this script:
+### Admin Dashboard
+- **Authentication**: Secure login for admin users
+- **Brand Management**: CRUD operations for brands
+  - Add, edit, delete brands
+  - Reorder brand listings
+  - Upload brand images
+- **Contact Form Management**: Review and process brand submissions
+  - View submission details
+  - Update submission status (pending, reviewed, approved, rejected)
+  - Add admin notes
+- **User Management**: Admin-only user control
+  - Create new admin users
+  - Manage user access
 
-1. In the backend directory, create a file called `createAdmin.js`:
-
-```javascript
-require('dotenv').config();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => {
-    console.error('Could not connect to MongoDB:', err);
-    process.exit(1);
-  });
-
-// Get the User model
-const User = require('./src/models/User');
-
-// Admin user details
-const adminUser = {
-  name: 'Admin User',
-  email: 'admin@example.com', // Change this to your email
-  password: 'admin123!', // Change this to a secure password
-  role: 'admin'
-};
-
-// Create the admin user
-async function createAdmin() {
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: adminUser.email });
-    if (existingUser) {
-      console.log('Admin user already exists');
-      process.exit(0);
-    }
-
-    // Create new user
-    const user = await User.create(adminUser);
-    console.log('Admin user created successfully:', user.email);
-  } catch (error) {
-    console.error('Error creating admin user:', error);
-  } finally {
-    mongoose.disconnect();
-  }
-}
-
-createAdmin();
-```
-
-2. Run the script:
-```bash
-node createAdmin.js
-```
-
-3. Now you can log in to the admin dashboard with the email and password you specified.
-
-## Features
-
-- **Public Website**:
-  - Brand showcase with categories
-  - Contact form for brand submissions
-  - Responsive design
-
-- **Admin Dashboard**:
-  - Brand management (add, edit, delete, reorder)
-  - Contact submission management
-  - User management (admins can create and manage users)
-
-## Deployment
-
-### Setting Up MongoDB Atlas (for Production)
-
-1. Create a free MongoDB Atlas account at [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster (the free tier is sufficient to get started)
-3. Create a database user with password authentication
-4. Whitelist your IP address or set it to allow access from anywhere (0.0.0.0/0)
-5. Click "Connect" on your cluster and select "Connect your application"
-6. Copy the connection string and replace `<username>`, `<password>`, and `<cluster>` with your information
-7. Update your production `.env` file with this connection string
-
-### Deploying the Application
-
-1. Update the `.env` files with production settings:
-   - Set `NODE_ENV=production`
-   - Use your MongoDB Atlas connection string
-   - Update the `CLIENT_URL` to your production frontend URL
-   - Use a strong, random `JWT_SECRET`
-
-2. Build the frontend:
-   ```bash
-   cd top-thca-brands-frontend
-   npm run build
-   ```
-
-3. Deploy options:
-   - **Heroku**: Create Procfile and deploy both frontend and backend
-   - **Vercel/Netlify**: Deploy frontend and use a service like Render or Railway for the backend
-   - **DigitalOcean/AWS**: Deploy using Docker containers or directly on VMs
-
-4. Set up environment variables on your hosting platform
-
-5. Create your admin user once deployed using the `createAdmin.js` script
-
-## License
-
-This project is proprietary and confidential.
+### Frontend Routes
+- `/` - Main landing page with brand showcase
+- `/login` - Admin login page
+- `/admin` - Admin dashboard (protected)
+- `/go/:target` - Dynamic redirect system for tracking referrals
+- `/go-smoky.html` - Static redirect to Smoky Mountain CBD
 
 ## Database Options
 
 This application supports two database options:
 
-### MongoDB (Original)
-The application was originally built with MongoDB as the database. To use MongoDB:
-- Set up a MongoDB Atlas account or local MongoDB server
-- Configure the `MONGO_URI` in your `.env` file
-
-### Supabase (New)
-The application now supports Supabase as an alternative database. To use Supabase:
+### Supabase (Primary)
+The application primarily uses Supabase (PostgreSQL):
 - Set up a Supabase project at [app.supabase.com](https://app.supabase.com)
-- Configure `SUPABASE_URL` and `SUPABASE_KEY` in your `.env` file
+- Configure `SUPABASE_URL`, `SUPABASE_KEY`, and `SUPABASE_SERVICE_KEY` in your `.env` file
 
-## Migrating from MongoDB to Supabase
+The Supabase schema includes these main tables:
+- `brands`: Store brand information (name, description, logo, etc.)
+- `users`: Admin user accounts with authentication
+- `contacts`: Brand submission form entries
 
-To migrate your application from MongoDB to Supabase:
+### MongoDB (Legacy Support)
+The application originally used MongoDB and still has legacy support:
+- Set up a MongoDB Atlas account or local MongoDB server
+- Configure the `MONGODB_URI` in your `.env` file
 
-1. Make sure your `.env` file contains both MongoDB and Supabase credentials:
-   ```
-   # MongoDB configuration
-   MONGODB_URI=your_mongodb_uri
-   
-   # Supabase configuration
-   SUPABASE_URL=https://your-project-ref.supabase.co
-   SUPABASE_KEY=your-anon-key
-   
-   # Common configuration
-   JWT_SECRET=your_secure_jwt_secret
-   ```
+## API Structure
 
-2. Run the complete migration script:
-   ```bash
-   cd backend
-   node scripts/completeSupabaseMigration.js
-   ```
+### Authentication Endpoints
+- `POST /api/auth/login` - Authenticate a user and return JWT token
+- `POST /api/auth/register` - Register a new admin user (admin only)
+- `GET /api/auth/profile` - Get the current user's profile
 
-3. This script will:
-   - Test your Supabase connection
-   - Set up necessary tables and storage buckets
-   - Migrate existing data from MongoDB
-   - Update your routes to use Supabase controllers
+### Brand Endpoints
+- `GET /api/brands` - Get all brands (public)
+- `GET /api/brands/:id` - Get a specific brand (public)
+- `POST /api/brands` - Create a new brand (admin only)
+- `PUT /api/brands/:id` - Update a brand (admin only)
+- `DELETE /api/brands/:id` - Delete a brand (admin only)
+- `PUT /api/brands/reorder` - Reorder brands (admin only)
 
-4. Start your server and verify everything works:
-   ```bash
-   npm start
-   ``` 
+### Contact Form Endpoints
+- `POST /api/contact` - Submit a contact form (public)
+- `GET /api/contact` - Get all contact submissions (admin only)
+- `GET /api/contact/:id` - Get a specific contact submission (admin only)
+- `PUT /api/contact/:id` - Update contact status (admin only)
+- `DELETE /api/contact/:id` - Delete a contact submission (admin only)
+
+### User Management Endpoints
+- `GET /api/admin/users` - Get all users (admin only)
+- `POST /api/admin/users` - Create a new user (admin only)
+- `PUT /api/admin/users/:id` - Update a user (admin only)
+- `DELETE /api/admin/users/:id` - Delete a user (admin only)
+
+## Deployment
+
+### Netlify (Frontend)
+1. Connect your GitHub repository to Netlify
+2. Configure build settings:
+   - Build command: `cd top-thca-brands-frontend && npm run build`
+   - Publish directory: `top-thca-brands-frontend/dist`
+3. Set environment variables:
+   - `VITE_API_URL` to your backend URL
+
+### Render (Backend)
+1. Create a new Web Service on Render
+2. Connect to your GitHub repository
+3. Configure build settings:
+   - Build command: `cd backend && npm install`
+   - Start command: `cd backend && npm start`
+4. Set environment variables:
+   - All the variables from your `.env` file
+
+## Traffic & Analytics
+
+### Google Analytics
+- **Tracking ID**: G-3GRNBSGY9H
+- **Implementation**: Added to index.html in the head section
+- **Features**: Tracks page views, events, and user behavior
+
+### Bot Traffic / Referral System
+- Purpose: Route traffic from external sources through your site to appear as referrals
+- Implementation:
+  - React component: `src/pages/Redirect.tsx`
+  - Static HTML: `public/go-smoky.html`
+  - Routes: Added to `App.tsx`
+- Usage:
+  - Send traffic to `https://topthcabrands.com/go/smoky`
+  - Visitors will be redirected to the destination with your site as the referrer
+
+## Troubleshooting
+
+### Common Issues
+
+#### Database Connection Issues
+- Verify Supabase credentials in your `.env` file
+- Check if Supabase project is active
+- Ensure database schema matches expected structure
+
+#### Authentication Issues
+- Check if JWT_SECRET in environment variables matches
+- Verify user exists in the database
+- Clear browser cache and cookies
+
+#### API Request Failures
+- Check browser console for CORS errors
+- Verify API URL is correctly set in environment variables
+- Check network tab for detailed error responses
+
+### Specific Error Solutions
+
+#### "Could not find the 'brand_name' column of 'contacts'"
+- Add the missing column to your Supabase database:
+  ```sql
+  ALTER TABLE contacts ADD COLUMN brand_name TEXT NOT NULL DEFAULT '';
+  ```
+
+#### "Could not find the 'website' column of 'contacts'"
+- Add the missing column to your Supabase database:
+  ```sql
+  ALTER TABLE contacts ADD COLUMN website TEXT;
+  ```
+
+## Creating an Initial Admin User
+
+Create your first admin user using this script:
+
+1. In the backend directory, create a file called `createAdmin.js` with the contents from the `createAdmin.js` in the root.
+
+2. Run the script:
+```bash
+cd backend
+node createAdmin.js
+```
+
+## License
+
+This project is proprietary and confidential. © Top THCA Brands. 

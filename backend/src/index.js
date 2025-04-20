@@ -14,6 +14,7 @@ const contactRoutes = require('./routes/contact');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const leaderboardRoutes = require('./routes/leaderboard');
+const subscriberRoutes = require('./routes/subscriber');
 
 // Create Express app
 const app = express();
@@ -109,6 +110,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/subscribe', subscriberRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -126,6 +128,7 @@ app.get('/', (req, res) => {
       '/api/auth',
       '/api/admin',
       '/api/leaderboard',
+      '/api/subscribe',
       '/api/db-status'
     ] 
   });
