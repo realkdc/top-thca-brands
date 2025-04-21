@@ -1,4 +1,6 @@
-const supabase = require('../utils/supabaseClient');
+const supabaseModule = require('../utils/supabaseClient');
+const supabase = supabaseModule;
+const getSupabaseClient = supabaseModule.getSupabaseClient;
 
 /**
  * Maps Supabase leaderboard data to frontend format
@@ -29,7 +31,26 @@ function mapLeaderboardToFrontend(data) {
  */
 exports.getLeaderboard = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    // Check if we have a valid session
+    console.log('Getting leaderboard data...');
+    
+    // Get a fresh Supabase client to ensure proper authentication
+    const freshClient = getSupabaseClient();
+    
+    // Verify supabase connection is valid
+    try {
+      const { data: healthCheck, error: healthError } = await freshClient.from('brands').select('count');
+      if (healthError) {
+        console.error('Supabase health check failed:', healthError);
+        throw healthError;
+      }
+      console.log('Supabase connection verified successfully');
+    } catch (connError) {
+      console.error('Failed to verify Supabase connection:', connError);
+      // Continue anyway as we'll try the main query
+    }
+
+    const { data, error } = await freshClient
       .from('brand_leaderboard')
       .select('*');
 
@@ -62,6 +83,23 @@ exports.rateBrand = async (req, res) => {
       comment 
     } = req.body;
     
+    // Get a fresh Supabase client to ensure proper authentication
+    const freshClient = getSupabaseClient();
+    
+    // Verify supabase connection before proceeding
+    console.log('Verifying Supabase connection before rating brand...');
+    try {
+      const { data: healthCheck, error: healthError } = await freshClient.from('brands').select('count');
+      if (healthError) {
+        console.error('Supabase health check failed:', healthError);
+        throw healthError;
+      }
+      console.log('Supabase connection verified successfully');
+    } catch (connError) {
+      console.error('Failed to verify Supabase connection:', connError);
+      // Continue anyway as we'll try the main operations
+    }
+    
     // Get user IP address for tracking unique votes
     const userIp = req.headers['x-forwarded-for'] || 
                    req.connection.remoteAddress || 
@@ -87,7 +125,7 @@ exports.rateBrand = async (req, res) => {
     }
     
     // Check if brand exists
-    const { data: brandData, error: brandError } = await supabase
+    const { data: brandData, error: brandError } = await freshClient
       .from('brands')
       .select('id')
       .eq('id', brandId)
@@ -101,7 +139,7 @@ exports.rateBrand = async (req, res) => {
     }
     
     // Check if user has already rated this brand
-    const { data: existingRating, error: ratingError } = await supabase
+    const { data: existingRating, error: ratingError } = await freshClient
       .from('brand_ratings')
       .select('id')
       .eq('brand_id', brandId)
@@ -116,7 +154,7 @@ exports.rateBrand = async (req, res) => {
     
     if (existingRating) {
       // Update existing rating
-      const { data, error } = await supabase
+      const { data, error } = await freshClient
         .from('brand_ratings')
         .update({
           potency_rating,
@@ -135,7 +173,7 @@ exports.rateBrand = async (req, res) => {
       
     } else {
       // Create new rating
-      const { data, error } = await supabase
+      const { data, error } = await freshClient
         .from('brand_ratings')
         .insert([
           {

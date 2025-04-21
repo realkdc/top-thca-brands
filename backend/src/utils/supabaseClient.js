@@ -11,11 +11,57 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 console.log('Initializing Supabase client with service role permissions');
+console.log(`Using URL: ${supabaseUrl}`);
+console.log(`Service key provided: ${supabaseServiceKey ? 'Yes' : 'No'}`);
+
+// Create Supabase client with more resilient settings
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
+    persistSession: false,
+    detectSessionInUrl: false
+  },
+  global: {
+    headers: {
+      'Authorization': `Bearer ${supabaseServiceKey}`
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
   }
 });
 
-module.exports = supabase; 
+// Export a function to get a fresh client if needed
+const getSupabaseClient = () => {
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    },
+    global: {
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`
+      }
+    }
+  });
+};
+
+// Test connection to verify client works
+(async () => {
+  try {
+    const { data, error } = await supabase.from('brands').select('count');
+    if (error) {
+      console.error('❌ Supabase connection test failed:', error);
+    } else {
+      console.log('✅ Supabase connection successful!');
+    }
+  } catch (err) {
+    console.error('❌ Supabase connection error:', err);
+  }
+})();
+
+module.exports = supabase;
+module.exports.getSupabaseClient = getSupabaseClient; 
