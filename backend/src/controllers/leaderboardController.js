@@ -74,79 +74,60 @@ exports.getLeaderboard = async (req, res) => {
 exports.rateBrand = async (req, res) => {
   try {
     const brandId = req.params.id;
-    const { 
-      potency_rating, 
-      flavor_rating, 
-      effects_rating, 
-      value_rating, 
-      overall_rating,
-      comment 
-    } = req.body;
+    
+    // Add EXTREME debugging to see what's happening
+    console.log('-------------------- RATING SUBMISSION --------------------');
+    console.log('Raw request body:', JSON.stringify(req.body));
+    console.log('Brand ID:', brandId);
+    
+    // Extract values directly - simpler approach
+    const potencyRating = Number(req.body.potency_rating);
+    const flavorRating = Number(req.body.flavor_rating);
+    const effectsRating = Number(req.body.effects_rating);
+    const valueRating = Number(req.body.value_rating);
+    const overallRating = Number(req.body.overall_rating);
+    const comment = req.body.comment || '';
+    
+    console.log('Parsed rating values:');
+    console.log('- potencyRating:', potencyRating);
+    console.log('- flavorRating:', flavorRating);
+    console.log('- effectsRating:', effectsRating);
+    console.log('- valueRating:', valueRating);
+    console.log('- overallRating:', overallRating);
     
     // Get a fresh Supabase client to ensure proper authentication
     const freshClient = getSupabaseClient();
     
-    // Verify supabase connection before proceeding
-    console.log('Verifying Supabase connection before rating brand...');
-    try {
-      const { data: healthCheck, error: healthError } = await freshClient.from('brands').select('count');
-      if (healthError) {
-        console.error('Supabase health check failed:', healthError);
-        throw healthError;
-      }
-      console.log('Supabase connection verified successfully');
-    } catch (connError) {
-      console.error('Failed to verify Supabase connection:', connError);
-      // Continue anyway as we'll try the main operations
-    }
-    
-    // Get user IP address for tracking unique votes
-    const userIp = req.headers['x-forwarded-for'] || 
-                   req.connection.remoteAddress || 
-                   req.socket.remoteAddress || 
-                   req.connection.socket.remoteAddress || 
-                   'unknown';
-    
-    // Ensure all ratings are provided and are numeric values
-    if (!potency_rating || !flavor_rating || !effects_rating || !value_rating || !overall_rating) {
-      return res.status(400).json({ 
-        message: 'All ratings must be provided (potency, flavor, effects, value, and overall)' 
-      });
-    }
-    
-    // Convert to numbers if they're strings
-    const potencyRating = Number(potency_rating);
-    const flavorRating = Number(flavor_rating);
-    const effectsRating = Number(effects_rating);
-    const valueRating = Number(value_rating);
-    const overallRating = Number(overall_rating);
-    
-    // Validate that all converted values are actual numbers
+    // Basic validation
     if (isNaN(potencyRating) || isNaN(flavorRating) || isNaN(effectsRating) || 
         isNaN(valueRating) || isNaN(overallRating)) {
+      console.log('VALIDATION ERROR: Invalid number values');
       return res.status(400).json({ 
         message: 'All ratings must be valid numbers' 
       });
     }
     
-    // Validate ratings
-    const ratings = [
-      potencyRating, 
-      flavorRating,
-      effectsRating,
-      valueRating,
-      overallRating
-    ];
-    
+    // Validate rating range
+    const ratings = [potencyRating, flavorRating, effectsRating, valueRating, overallRating];
     for (const rating of ratings) {
       if (rating < 1 || rating > 10) {
+        console.log('VALIDATION ERROR: Rating out of range:', rating);
         return res.status(400).json({ 
           message: 'All ratings must be between 1 and 10' 
         });
       }
     }
     
+    // Get user IP address for tracking unique votes
+    const userIp = req.headers['x-forwarded-for'] || 
+                   req.connection.remoteAddress || 
+                   req.socket.remoteAddress || 
+                   'unknown';
+    
+    console.log('User IP:', userIp);
+    
     // Check if brand exists
+    console.log('Checking if brand exists:', brandId);
     const { data: brandData, error: brandError } = await freshClient
       .from('brands')
       .select('id')
@@ -154,6 +135,7 @@ exports.rateBrand = async (req, res) => {
       .single();
       
     if (brandError) {
+      console.log('Brand error:', brandError);
       if (brandError.code === 'PGRST116') {
         return res.status(404).json({ message: 'Brand not found' });
       }
@@ -161,6 +143,7 @@ exports.rateBrand = async (req, res) => {
     }
     
     // Check if user has already rated this brand
+    console.log('Checking for existing rating from IP:', userIp);
     const { data: existingRating, error: ratingError } = await freshClient
       .from('brand_ratings')
       .select('id')
@@ -169,62 +152,63 @@ exports.rateBrand = async (req, res) => {
       .maybeSingle();
       
     if (ratingError && ratingError.code !== 'PGRST116') {
+      console.log('Rating lookup error:', ratingError);
       throw ratingError;
     }
+    
+    // Prepare rating data
+    const ratingData = {
+      potency_rating: potencyRating,
+      flavor_rating: flavorRating,
+      effects_rating: effectsRating,
+      value_rating: valueRating, 
+      overall_rating: overallRating,
+      comment
+    };
     
     let result;
     
     if (existingRating) {
       // Update existing rating
+      console.log('Updating existing rating:', existingRating.id);
       const { data, error } = await freshClient
         .from('brand_ratings')
-        .update({
-          potency_rating: potencyRating,
-          flavor_rating: flavorRating,
-          effects_rating: effectsRating,
-          value_rating: valueRating, 
-          overall_rating: overallRating,
-          comment
-        })
+        .update(ratingData)
         .eq('id', existingRating.id)
         .select()
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.log('Update error:', error);
+        throw error;
+      }
+      
       result = data;
       
     } else {
       // Create new rating
+      console.log('Creating new rating for brand:', brandId);
+      const insertData = {
+        brand_id: brandId,
+        user_ip: userIp,
+        ...ratingData
+      };
+      
       const { data, error } = await freshClient
         .from('brand_ratings')
-        .insert([
-          {
-            brand_id: brandId,
-            user_ip: userIp,
-            potency_rating: potencyRating,
-            flavor_rating: flavorRating,
-            effects_rating: effectsRating,
-            value_rating: valueRating,
-            overall_rating: overallRating,
-            comment
-          }
-        ])
+        .insert([insertData])
         .select()
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.log('Insert error:', error);
+        throw error;
+      }
+      
       result = data;
     }
     
-    // Fix for debugging - confirm what values were saved
-    console.log('Rating saved:', {
-      id: result.id,
-      potency: result.potency_rating,
-      flavor: result.flavor_rating, 
-      effects: result.effects_rating,
-      value: result.value_rating,
-      overall: result.overall_rating
-    });
+    console.log('Rating saved successfully!');
     
     res.status(201).json({
       success: true,

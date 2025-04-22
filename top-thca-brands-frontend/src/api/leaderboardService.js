@@ -14,7 +14,20 @@ export const getLeaderboard = async () => {
 // Rate a brand
 export const rateBrand = async (brandId, ratingData) => {
   try {
-    const response = await axiosInstance.post(`/leaderboard/brands/${brandId}/rate`, ratingData);
+    // Convert from frontend property names to backend expected names
+    // Also ensure all values are numbers
+    const backendRatingData = {
+      potency_rating: Number(ratingData.potency),
+      flavor_rating: Number(ratingData.flavor),
+      effects_rating: Number(ratingData.effects),
+      value_rating: Number(ratingData.value),
+      overall_rating: Number(ratingData.overall),
+      comment: ratingData.comment || ''
+    };
+    
+    console.log('Sending rating data:', backendRatingData);
+    
+    const response = await axiosInstance.post(`/leaderboard/brands/${brandId}/rate`, backendRatingData);
     return response.data;
   } catch (error) {
     console.error('Error rating brand:', error);
