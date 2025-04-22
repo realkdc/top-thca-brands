@@ -107,17 +107,39 @@ exports.rateBrand = async (req, res) => {
                    req.connection.socket.remoteAddress || 
                    'unknown';
     
+    // Ensure all ratings are provided and are numeric values
+    if (!potency_rating || !flavor_rating || !effects_rating || !value_rating || !overall_rating) {
+      return res.status(400).json({ 
+        message: 'All ratings must be provided (potency, flavor, effects, value, and overall)' 
+      });
+    }
+    
+    // Convert to numbers if they're strings
+    const potencyRating = Number(potency_rating);
+    const flavorRating = Number(flavor_rating);
+    const effectsRating = Number(effects_rating);
+    const valueRating = Number(value_rating);
+    const overallRating = Number(overall_rating);
+    
+    // Validate that all converted values are actual numbers
+    if (isNaN(potencyRating) || isNaN(flavorRating) || isNaN(effectsRating) || 
+        isNaN(valueRating) || isNaN(overallRating)) {
+      return res.status(400).json({ 
+        message: 'All ratings must be valid numbers' 
+      });
+    }
+    
     // Validate ratings
     const ratings = [
-      potency_rating, 
-      flavor_rating, 
-      effects_rating, 
-      value_rating, 
-      overall_rating
+      potencyRating, 
+      flavorRating,
+      effectsRating,
+      valueRating,
+      overallRating
     ];
     
     for (const rating of ratings) {
-      if (rating && (rating < 1 || rating > 10)) {
+      if (rating < 1 || rating > 10) {
         return res.status(400).json({ 
           message: 'All ratings must be between 1 and 10' 
         });
@@ -157,11 +179,11 @@ exports.rateBrand = async (req, res) => {
       const { data, error } = await freshClient
         .from('brand_ratings')
         .update({
-          potency_rating,
-          flavor_rating,
-          effects_rating,
-          value_rating, 
-          overall_rating,
+          potency_rating: potencyRating,
+          flavor_rating: flavorRating,
+          effects_rating: effectsRating,
+          value_rating: valueRating, 
+          overall_rating: overallRating,
           comment
         })
         .eq('id', existingRating.id)
@@ -179,11 +201,11 @@ exports.rateBrand = async (req, res) => {
           {
             brand_id: brandId,
             user_ip: userIp,
-            potency_rating,
-            flavor_rating,
-            effects_rating,
-            value_rating,
-            overall_rating,
+            potency_rating: potencyRating,
+            flavor_rating: flavorRating,
+            effects_rating: effectsRating,
+            value_rating: valueRating,
+            overall_rating: overallRating,
             comment
           }
         ])
@@ -193,6 +215,16 @@ exports.rateBrand = async (req, res) => {
       if (error) throw error;
       result = data;
     }
+    
+    // Fix for debugging - confirm what values were saved
+    console.log('Rating saved:', {
+      id: result.id,
+      potency: result.potency_rating,
+      flavor: result.flavor_rating, 
+      effects: result.effects_rating,
+      value: result.value_rating,
+      overall: result.overall_rating
+    });
     
     res.status(201).json({
       success: true,
@@ -213,7 +245,10 @@ exports.rateBrand = async (req, res) => {
  */
 exports.getBrandLists = async (req, res) => {
   try {
-    const { data: lists, error } = await supabase
+    // Get a fresh Supabase client to ensure proper authentication
+    const freshClient = getSupabaseClient();
+    
+    const { data: lists, error } = await freshClient
       .from('brand_lists')
       .select(`
         *,
@@ -265,12 +300,15 @@ exports.voteOnListItem = async (req, res) => {
     const { listId, itemId } = req.params;
     const { vote } = req.body;
     
+    // Get a fresh Supabase client to ensure proper authentication
+    const freshClient = getSupabaseClient();
+    
     if (vote !== 'up' && vote !== 'down') {
       return res.status(400).json({ message: "Vote must be 'up' or 'down'" });
     }
     
     // Get the item
-    const { data: item, error: itemError } = await supabase
+    const { data: item, error: itemError } = await freshClient
       .from('brand_list_items')
       .select('*')
       .eq('id', itemId)
@@ -289,7 +327,7 @@ exports.voteOnListItem = async (req, res) => {
       ? { upvotes: item.upvotes + 1 }
       : { downvotes: item.downvotes + 1 };
       
-    const { data, error } = await supabase
+    const { data, error } = await freshClient
       .from('brand_list_items')
       .update(updateData)
       .eq('id', itemId)
