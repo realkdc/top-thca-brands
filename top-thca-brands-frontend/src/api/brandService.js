@@ -1,20 +1,41 @@
 import axiosInstance from './axiosConfig';
+import supabase from './supabaseClient';
 
 // Get all brands
 export const getBrands = async () => {
   try {
-    console.log('Fetching brands from API...');
-    const response = await axiosInstance.get('/brands');
-    console.log('Brands fetched successfully:', response.data.length);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching brands:', error);
-    console.error('Error details:', {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data
-    });
-    throw error;
+    // Try Supabase directly first (no backend required)
+    const { data, error } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('is_active', true)
+      .order('rank', { ascending: true });
+
+    if (error) throw error;
+
+    // Map to the frontend Brand shape
+    const mapped = (data || []).map((b) => ({
+      _id: b.id,
+      name: b.name,
+      image: b.logo || '',
+      category: Array.isArray(b.product_types) && b.product_types.length ? (b.product_types.find((t)=>['Flower','Concentrate','Edibles','Vape'].includes(t)) || 'Other') : 'Other',
+      rating: 5,
+      description: b.description || '',
+      featured: Array.isArray(b.product_types) ? b.product_types.includes('featured') : false,
+      slug: (b.slug || b.name?.toLowerCase().replace(/\s+/g,'-')),
+      website: b.website_url || ''
+    }));
+
+    return mapped;
+  } catch (err) {
+    // Fallback to backend if available
+    try {
+      const response = await axiosInstance.get('/brands');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      throw error;
+    }
   }
 };
 

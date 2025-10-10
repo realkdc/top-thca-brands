@@ -1,13 +1,38 @@
 import axiosInstance from './axiosConfig';
+import supabase from './supabaseClient';
 
 // Get leaderboard data
 export const getLeaderboard = async () => {
   try {
-    const response = await axiosInstance.get('/leaderboard');
-    return response.data;
+    // Build leaderboard directly from Supabase view if present; else compute client-side
+    const { data, error } = await supabase.from('brand_leaderboard').select('*');
+    if (!error && Array.isArray(data)) {
+      return data;
+    }
+
+    // Fallback: compute simple leaderboard from brands with no ratings
+    const { data: brands } = await supabase
+      .from('brands')
+      .select('id,name,logo,description,product_types,website_url')
+      .eq('is_active', true);
+    return (brands || []).map((b) => ({
+      id: b.id,
+      name: b.name,
+      logo: b.logo,
+      description: b.description,
+      product_types: b.product_types,
+      website_url: b.website_url,
+      avg_overall: 0,
+      total_ratings: 0,
+    }));
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    throw error;
+    try {
+      const response = await axiosInstance.get('/leaderboard');
+      return response.data;
+    } catch (e) {
+      console.error('Error fetching leaderboard:', e);
+      throw e;
+    }
   }
 };
 
