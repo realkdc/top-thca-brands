@@ -16,16 +16,19 @@ export const getLeaderboard = async () => {
       .select('id,name,logo,description,product_types,website_url')
       .eq('is_active', true);
     return (brands || []).map((b, index) => ({
-      id: b.id,
+      _id: b.id,
       name: b.name,
-      logo: b.logo,
+      image: b.logo,
       description: b.description,
-      product_types: b.product_types,
-      website_url: b.website_url,
-      rank: index + 1,
-      overall: 4.5, // Default rating for display
-      avg_overall: 4.5,
-      total_ratings: 25 + Math.floor(Math.random() * 100),
+      website: b.website_url,
+      ratings: {
+        potency: 4.2,
+        flavor: 4.3,
+        effects: 4.4,
+        value: 4.1,
+        overall: 4.5
+      },
+      totalRatings: 25 + Math.floor(Math.random() * 100),
     }));
   } catch (error) {
     try {
