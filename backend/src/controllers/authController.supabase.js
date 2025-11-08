@@ -51,7 +51,10 @@ exports.register = async (req, res) => {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error when fetching users:', error);
+      throw error;
+    }
 
     // Generate JWT
     const token = generateToken(user.id);
@@ -119,7 +122,7 @@ exports.login = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', JSON.stringify(error, null, 2));
     res.status(500).json({ message: error.message });
   }
 };
