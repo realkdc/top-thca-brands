@@ -140,6 +140,8 @@ app.get('/debug-env', (req, res) => {
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_KEY_PRESENT: !!process.env.SUPABASE_SERVICE_KEY,
     SUPABASE_KEY_PRESENT: !!process.env.SUPABASE_KEY,
+    SUPABASE_SERVICE_KEY_LENGTH: process.env.SUPABASE_SERVICE_KEY ? process.env.SUPABASE_SERVICE_KEY.length : 0,
+    SUPABASE_KEY_LENGTH: process.env.SUPABASE_KEY ? process.env.SUPABASE_KEY.length : 0,
     NODE_VERSION: process.version,
   });
 });
