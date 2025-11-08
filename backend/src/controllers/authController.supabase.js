@@ -123,7 +123,10 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', JSON.stringify(error, null, 2));
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      message: error.message,
+      details: error
+    });
   }
 };
 
