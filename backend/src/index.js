@@ -144,6 +144,19 @@ app.get('/debug-env', (req, res) => {
   });
 });
 
+// Temporary route to test Supabase users table access
+app.get('/debug-users', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('users').select('id,email,role').limit(5);
+    if (error) {
+      return res.status(500).json({ message: error.message, details: error });
+    }
+    res.json({ count: data?.length || 0, data });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
