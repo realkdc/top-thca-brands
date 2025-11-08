@@ -134,37 +134,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Temporary debug route to inspect Supabase environment (remove after debugging)
-app.get('/debug-env', (req, res) => {
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY || '';
-  const anonKey = process.env.SUPABASE_KEY || '';
-  res.json({
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_SERVICE_KEY_PRESENT: !!process.env.SUPABASE_SERVICE_KEY,
-    SUPABASE_KEY_PRESENT: !!process.env.SUPABASE_KEY,
-    SUPABASE_SERVICE_KEY_LENGTH: serviceKey.length,
-    SUPABASE_KEY_LENGTH: anonKey.length,
-    SUPABASE_SERVICE_KEY_START: serviceKey.slice(0, 10),
-    SUPABASE_SERVICE_KEY_END: serviceKey.slice(-10),
-    SUPABASE_KEY_START: anonKey.slice(0, 10),
-    SUPABASE_KEY_END: anonKey.slice(-10),
-    NODE_VERSION: process.version,
-  });
-});
-
-// Temporary route to test Supabase users table access
-app.get('/debug-users', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('users').select('id,email,role').limit(5);
-    if (error) {
-      return res.status(500).json({ message: error.message, details: error });
-    }
-    res.json({ count: data?.length || 0, data });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
