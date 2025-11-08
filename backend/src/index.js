@@ -134,6 +134,16 @@ app.get('/', (req, res) => {
   });
 });
 
+// Temporary debug route to inspect Supabase environment (remove after debugging)
+app.get('/debug-env', (req, res) => {
+  res.json({
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_KEY_PRESENT: !!process.env.SUPABASE_SERVICE_KEY,
+    SUPABASE_KEY_PRESENT: !!process.env.SUPABASE_KEY,
+    NODE_VERSION: process.version,
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
