@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Redirect from "./pages/Redirect";
 import RetentionCalculator from "./pages/RetentionCalculator";
+import SmsCampaigns from "./pages/SmsCampaigns";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
             path="/resources/retention-calculator"
             element={<RetentionCalculator />}
           />
+          <Route path="/resources/sms-campaigns" element={<SmsCampaigns />} />
           <Route path="/go/:target" element={<Redirect />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
