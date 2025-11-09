@@ -28,6 +28,7 @@ const App = () => (
             element={<RetentionCalculator />}
           />
           <Route path="/resources/sms-campaigns" element={<SmsCampaigns />} />
+          <Route path="/sms-campaigns" element={<SmsCampaigns />} />
           <Route path="/go/:target" element={<Redirect />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
