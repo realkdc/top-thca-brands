@@ -197,7 +197,7 @@ const SmsCampaigns = () => {
                         required
                         value={leadForm.name}
                         onChange={(value) => handleLeadFormChange("name", value)}
-                        placeholder="KeShaun Camon"
+                        placeholder="Jordan Example"
                       />
                       <LabelledInput
                         label="Work email"
@@ -216,7 +216,7 @@ const SmsCampaigns = () => {
                         onChange={(value) =>
                           handleLeadFormChange("brandName", value)
                         }
-                        placeholder="GreenHaus"
+                        placeholder="Summit Collective"
                       />
                       <LabelledInput
                         label="Website (optional)"
@@ -295,7 +295,7 @@ const SmsCampaigns = () => {
                   required
                   value={leadForm.name}
                   onChange={(value) => handleLeadFormChange("name", value)}
-                  placeholder="KeShaun Camon"
+                  placeholder="Jordan Example"
                 />
                 <LabelledInput
                   label="Work email"
@@ -310,7 +310,7 @@ const SmsCampaigns = () => {
                   required
                   value={leadForm.brandName}
                   onChange={(value) => handleLeadFormChange("brandName", value)}
-                  placeholder="GreenHaus"
+                  placeholder="Summit Collective"
                 />
                 <LabelledInput
                   label="Website (optional)"
