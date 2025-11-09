@@ -59,6 +59,7 @@ const SmsCampaigns = () => {
         email: leadForm.email,
         brandName: leadForm.brandName,
         website: leadForm.website,
+        source: "sms-playbook",
         message:
           "7 Dispensary SMS Campaigns playbook requested. Please follow up about product-led retention.",
       });

@@ -5,9 +5,11 @@ const supabase = require('../utils/supabaseClient');
  * @route   POST /api/contact
  * @access  Public
  */
+const { sendLeadNotification } = require("../utils/emailService");
+
 exports.submitContactForm = async (req, res) => {
   try {
-    const { name, email, brandName, website, message } = req.body;
+    const { name, email, brandName, website, message, source } = req.body;
 
     // Validate input
     if (!name || !email || !brandName || !message) {
@@ -40,6 +42,21 @@ exports.submitContactForm = async (req, res) => {
       success: true,
       message: 'Contact form submitted successfully',
       data
+    });
+
+    // Fire-and-forget email notification
+    sendLeadNotification({
+      name,
+      email,
+      brandName,
+      website,
+      source:
+        source ||
+        (message?.includes("SMS")
+          ? "SMS Playbook"
+          : "Retention Calculator"),
+    }).catch((notifyErr) => {
+      console.error("Lead alert failed:", notifyErr);
     });
   } catch (error) {
     console.error('Contact form error:', error);

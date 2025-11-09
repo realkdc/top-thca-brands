@@ -110,6 +110,7 @@ const RetentionCalculator = () => {
         email: leadForm.email,
         brandName: leadForm.brandName,
         website: leadForm.website,
+        source: "retention-calculator",
         message:
           "Dispensary Retention Calculator requested. Please follow up regarding GreenLoop App Audit.",
       });
