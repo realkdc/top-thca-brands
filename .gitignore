@@ -54,6 +54,7 @@ backend/setupBucket.js
 
 # Temporary files
 **/temp/
+**/.temp/
 **/temp-*/
 **/*.tmp
 **/*.bak

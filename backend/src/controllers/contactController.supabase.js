@@ -1,11 +1,5 @@
 const supabase = require('../utils/supabaseClient');
-
-/**
- * @desc    Submit a contact form
- * @route   POST /api/contact
- * @access  Public
- */
-const { sendLeadNotification } = require("../utils/emailService");
+const { sendLeadAlert } = require("../utils/leadAlert");
 
 exports.submitContactForm = async (req, res) => {
   try {
@@ -44,19 +38,19 @@ exports.submitContactForm = async (req, res) => {
       data
     });
 
-    // Fire-and-forget email notification
-    sendLeadNotification({
-      name,
-      email,
-      brandName,
-      website,
-      source:
-        source ||
-        (message?.includes("SMS")
-          ? "SMS Playbook"
-          : "Retention Calculator"),
+    const inferredSource =
+      source ||
+      (message?.toLowerCase().includes("sms")
+        ? "SMS Playbook"
+        : message?.toLowerCase().includes("calculator")
+        ? "Retention Calculator"
+        : undefined);
+
+    sendLeadAlert({
+      ...data,
+      source: inferredSource,
     }).catch((notifyErr) => {
-      console.error("Lead alert failed:", notifyErr);
+      console.error("Lead alert function call failed:", notifyErr);
     });
   } catch (error) {
     console.error('Contact form error:', error);
