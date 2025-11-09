@@ -21,11 +21,11 @@ type LeadFormState = {
 };
 
 const INITIAL_CALCULATOR_INPUTS: CalculatorInputs = {
-  monthlyCustomers: "",
-  averageOrderValue: "",
-  currentRepeatRate: "",
-  targetRepeatRate: "",
-  margin: "",
+  monthlyCustomers: "600",
+  averageOrderValue: "45",
+  currentRepeatRate: "18",
+  targetRepeatRate: "32",
+  margin: "48",
 };
 
 const INITIAL_LEAD_FORM: LeadFormState = {
@@ -142,7 +142,7 @@ const RetentionCalculator = () => {
       <main className="container mx-auto flex-1 px-6 py-12">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <section>
-            <div className="rounded-3xl border border-thca-grey/25 bg-gradient-to-b from-thca-black to-thca-black/40 p-8 shadow-[0_0_80px_rgba(255,0,0,0.05)]">
+            <div className="rounded-3xl border border-thca-grey/30 bg-gradient-to-b from-[#1b1b1b] via-[#151515] to-[#0f0f0f] p-8 shadow-[0_0_120px_rgba(255,0,0,0.06)]">
               <p className="text-xs uppercase tracking-[0.4em] text-thca-red">
                 Free resource
               </p>
@@ -154,7 +154,7 @@ const RetentionCalculator = () => {
                 our calculator for quick projections, then download the Excel
                 workbook to plug the formula into your own stack.
               </p>
-              <div className="mt-8 grid gap-4 text-sm text-thca-white/60">
+              <div className="mt-8 grid gap-4 text-sm text-thca-white/75">
                 <div className="flex items-start gap-3">
                   <span className="mt-1 h-2 w-2 rounded-full bg-thca-red"></span>
                   <p>Inputs: customers, AOV, repeat rate, target repeat rate, margin.</p>
@@ -174,7 +174,7 @@ const RetentionCalculator = () => {
               </div>
             </div>
 
-            <div className="mt-10 rounded-3xl border border-thca-grey/15 bg-thca-black/60 p-8">
+            <div className="mt-10 rounded-3xl border border-thca-grey/25 bg-[#151515] p-8 shadow-[0_24px_90px_rgba(0,0,0,0.4)]">
               <h2 className="font-display text-xl font-semibold text-thca-white">
                 Get the workbook
               </h2>
@@ -219,7 +219,7 @@ const RetentionCalculator = () => {
                 </button>
               </form>
               {resourcesUnlocked ? (
-                <div className="mt-6 space-y-3 rounded-2xl border border-thca-grey/20 bg-thca-black/50 p-5">
+                <div className="mt-6 space-y-3 rounded-2xl border border-thca-grey/25 bg-[#1c1c1c] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.35)]">
                   <p className="text-sm font-semibold text-thca-gold">
                     Resources ready
                   </p>
@@ -245,7 +245,7 @@ const RetentionCalculator = () => {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-thca-grey/20 bg-thca-black/60 p-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+          <section className="rounded-3xl border border-thca-grey/25 bg-gradient-to-br from-[#1e1e1e] via-[#151515] to-[#101010] p-8 shadow-[0_40px_130px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.4em] text-thca-white/40">
                 Interactive model
@@ -257,10 +257,16 @@ const RetentionCalculator = () => {
             <h2 className="mt-4 font-display text-3xl font-semibold text-thca-white">
               Project your retention lift
             </h2>
-            <p className="mt-3 text-sm text-thca-white/60">
-              Update the inputs below to estimate incremental orders, revenue,
-              and profit once your dispensary hits the retention target.
+            <p className="mt-3 text-sm text-thca-white/70">
+              Start with the sample assumptions or dial each field to mirror
+              your dispensary. The opportunity section underneath updates in
+              real time.
             </p>
+            <div className="mt-4 rounded-xl border border-thca-grey/30 bg-white/[0.06] px-4 py-3 text-xs text-thca-white/70">
+              <span className="font-semibold text-thca-gold">Formula snapshot:</span> incremental
+              orders = monthly customers × (target repeat − current repeat).
+              We multiply that by AOV for revenue and apply your margin to get profit.
+            </div>
 
             <div className="mt-8 grid gap-5">
               <CalculatorInput
@@ -270,6 +276,7 @@ const RetentionCalculator = () => {
                   handleCalculatorInputChange("monthlyCustomers", value)
                 }
                 prefix=""
+                helperText="Unique shoppers who purchase at least once per month."
               />
               <CalculatorInput
                 label="Average order value"
@@ -278,6 +285,7 @@ const RetentionCalculator = () => {
                   handleCalculatorInputChange("averageOrderValue", value)
                 }
                 prefix="$"
+                helperText="Average basket size before taxes and fees."
               />
               <div className="grid gap-5 md:grid-cols-2">
                 <CalculatorInput
@@ -287,6 +295,7 @@ const RetentionCalculator = () => {
                     handleCalculatorInputChange("currentRepeatRate", value)
                   }
                   suffix="%"
+                  helperText="Percent of customers returning within 30 days today."
                 />
                 <CalculatorInput
                   label="Target repeat % (with app)"
@@ -295,6 +304,7 @@ const RetentionCalculator = () => {
                     handleCalculatorInputChange("targetRepeatRate", value)
                   }
                   suffix="%"
+                  helperText="Your retention goal once the mobile app launches."
                 />
               </div>
               <CalculatorInput
@@ -302,6 +312,7 @@ const RetentionCalculator = () => {
                 value={calculatorInputs.margin}
                 onChange={(value) => handleCalculatorInputChange("margin", value)}
                 suffix="%"
+                helperText="Gross margin after COGS. Example: 48 means $0.48 profit per $1 revenue."
               />
             </div>
 
@@ -360,12 +371,12 @@ const LabelledInput = ({
   required?: boolean;
 }) => (
   <label className="block">
-    <span className="text-xs uppercase tracking-[0.3em] text-thca-white/40">
+    <span className="text-xs uppercase tracking-[0.3em] text-thca-white/45">
       {label}
       {required ? " *" : ""}
     </span>
     <input
-      className="mt-2 w-full rounded-xl border border-thca-grey/20 bg-thca-black/60 px-4 py-3 text-sm text-thca-white placeholder:text-thca-white/30 focus:border-thca-red focus:outline-none focus:ring-1 focus:ring-thca-red"
+      className="mt-2 w-full rounded-xl border border-thca-grey/25 bg-white/5 px-4 py-3 text-sm text-thca-white placeholder:text-thca-white/40 focus:border-thca-gold focus:outline-none focus:ring-1 focus:ring-thca-gold/60"
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
@@ -381,32 +392,37 @@ const CalculatorInput = ({
   onChange,
   prefix,
   suffix,
+  helperText,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   prefix?: string;
   suffix?: string;
+  helperText?: string;
 }) => (
   <label className="block">
-    <span className="text-xs uppercase tracking-[0.3em] text-thca-white/40">
+    <span className="text-xs uppercase tracking-[0.3em] text-thca-white/45">
       {label}
     </span>
-    <div className="mt-2 flex items-center gap-2 rounded-xl border border-thca-grey/20 bg-thca-black/50 px-4 py-3 focus-within:border-thca-red focus-within:ring-1 focus-within:ring-thca-red">
+    <div className="mt-2 flex items-center gap-3 rounded-xl border border-thca-grey/25 bg-white/5 px-4 py-3 focus-within:border-thca-gold focus-within:ring-1 focus-within:ring-thca-gold/60">
       {prefix ? (
-        <span className="text-sm text-thca-white/60">{prefix}</span>
+        <span className="text-sm text-thca-white/75">{prefix}</span>
       ) : null}
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-transparent text-sm text-thca-white placeholder:text-thca-white/30 focus:outline-none"
+        className="w-full bg-transparent text-sm text-thca-white placeholder:text-thca-white/40 focus:outline-none"
         placeholder="0"
         inputMode="decimal"
       />
       {suffix ? (
-        <span className="text-sm text-thca-white/60">{suffix}</span>
+        <span className="text-sm text-thca-white/75">{suffix}</span>
       ) : null}
     </div>
+    {helperText ? (
+      <p className="mt-2 text-xs text-thca-white/45">{helperText}</p>
+    ) : null}
   </label>
 );
 
@@ -424,8 +440,8 @@ const MetricCard = ({
   <div
     className={`rounded-2xl border ${
       highlight
-        ? "border-thca-gold/40 bg-gradient-to-br from-thca-gold/15 via-transparent to-transparent shadow-[0_0_60px_rgba(255,215,0,0.08)]"
-        : "border-thca-grey/25 bg-thca-black/40"
+        ? "border-thca-gold/40 bg-gradient-to-br from-thca-gold/20 via-thca-black/20 to-thca-black/60 shadow-[0_0_60px_rgba(255,215,0,0.15)]"
+        : "border-thca-grey/25 bg-white/5"
     } p-6`}
   >
     <p className="text-xs uppercase tracking-[0.3em] text-thca-white/40">
