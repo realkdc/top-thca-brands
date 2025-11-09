@@ -235,60 +235,88 @@ const LeaderboardSection = () => {
             </div>
 
             {/* Mobile leaderboard cards */}
-            <div className="lg:hidden grid grid-cols-1 gap-4">
+            <div className="lg:hidden grid grid-cols-1 gap-5">
               {sortedBrands.map((brand, index) => (
-                <div key={brand._id} className="bg-thca-grey/10 rounded-lg p-4 border border-thca-grey/30">
-                  <div className="flex items-center mb-3">
-                    <span className={`flex items-center justify-center w-8 h-8 rounded-full ${index < 3 ? 'bg-thca-gold text-thca-black' : 'bg-thca-grey/20 text-thca-white'} font-bold text-sm mr-3`}>
-                      {index + 1}
-                    </span>
-                    <div className="flex items-center flex-1">
-                      <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
-                        <img 
-                          src={brand.image} 
-                          alt={brand.name} 
+                <div
+                  key={brand._id}
+                  className="rounded-2xl border border-thca-grey/25 bg-gradient-to-br from-[#1a1c22] via-[#16181d] to-[#111217] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
+                >
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex flex-1 items-center">
+                      <span
+                        className={`mr-3 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
+                          index < 3
+                            ? "bg-thca-gold text-thca-black"
+                            : "bg-thca-grey/20 text-thca-white"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      <div className="mr-3 h-12 w-12 overflow-hidden rounded-full border border-thca-grey/30">
+                        <img
+                          src={brand.image}
+                          alt={brand.name}
                           className="h-full w-full object-cover"
                           onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/40?text=Brand';
+                            e.currentTarget.src =
+                              "https://via.placeholder.com/40?text=Brand";
                           }}
                         />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-thca-white">{brand.name}</div>
-                        <div className="text-xs text-thca-white/50">
-                          {brand.totalRatings} rating{brand.totalRatings !== 1 ? 's' : ''}
+                        <div className="text-base font-semibold text-thca-white">
+                          {brand.name}
+                        </div>
+                        <div className="text-xs uppercase tracking-[0.3em] text-thca-white/40">
+                          {brand.totalRatings} rating
+                          {brand.totalRatings !== 1 ? "s" : ""}
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="bg-thca-grey/20 p-2 rounded">
-                      <div className="text-xs text-thca-white/70 mb-1">Potency</div>
-                      <RatingDisplay rating={brand.ratings.potency} highlight={sortCriteria === 'potency'} />
-                    </div>
-                    <div className="bg-thca-grey/20 p-2 rounded">
-                      <div className="text-xs text-thca-white/70 mb-1">Flavor</div>
-                      <RatingDisplay rating={brand.ratings.flavor} highlight={sortCriteria === 'flavor'} />
-                    </div>
-                    <div className="bg-thca-grey/20 p-2 rounded">
-                      <div className="text-xs text-thca-white/70 mb-1">Effects</div>
-                      <RatingDisplay rating={brand.ratings.effects} highlight={sortCriteria === 'effects'} />
-                    </div>
-                    <div className="bg-thca-grey/20 p-2 rounded">
-                      <div className="text-xs text-thca-white/70 mb-1">Value</div>
-                      <RatingDisplay rating={brand.ratings.value} highlight={sortCriteria === 'value'} />
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="bg-thca-grey/20 p-2 rounded flex-1 mr-4">
-                      <div className="text-xs text-thca-white/70 mb-1">Overall</div>
-                      <RatingDisplay rating={brand.ratings.overall} highlight={sortCriteria === 'overall'} />
-                    </div>
-                    <button 
+                    <button
                       onClick={() => openRatingModal(brand)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded text-thca-black bg-thca-gold hover:bg-thca-gold/90 focus:outline-none"
+                      className="inline-flex items-center gap-1 rounded-full border border-thca-gold/30 bg-thca-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-thca-gold transition hover:bg-thca-gold/20"
+                    >
+                      Rate
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <MobileMetric
+                      label="Potency"
+                      value={brand.ratings.potency}
+                      highlight={sortCriteria === "potency"}
+                    />
+                    <MobileMetric
+                      label="Flavor"
+                      value={brand.ratings.flavor}
+                      highlight={sortCriteria === "flavor"}
+                    />
+                    <MobileMetric
+                      label="Effects"
+                      value={brand.ratings.effects}
+                      highlight={sortCriteria === "effects"}
+                    />
+                    <MobileMetric
+                      label="Value"
+                      value={brand.ratings.value}
+                      highlight={sortCriteria === "value"}
+                    />
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between rounded-2xl border border-thca-gold/30 bg-thca-gold/10 px-4 py-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.35em] text-thca-white/50">
+                        Overall
+                      </p>
+                      <RatingDisplay
+                        rating={brand.ratings.overall}
+                        highlight={sortCriteria === "overall"}
+                      />
+                    </div>
+                    <button
+                      onClick={() => openRatingModal(brand)}
+                      className="inline-flex items-center justify-center rounded-full bg-thca-gold px-4 py-2 text-sm font-semibold text-thca-black transition hover:bg-thca-gold/90"
                     >
                       Rate Now
                     </button>
@@ -345,6 +373,23 @@ const RatingDisplay = ({ rating, highlight = false }: { rating: number; highligh
   <div className={`inline-flex items-center ${highlight ? 'text-thca-gold font-medium' : 'text-thca-white'}`}>
     <span className="text-base font-semibold">{rating.toFixed(1)}</span>
     <span className="text-xs ml-1">/10</span>
+  </div>
+);
+
+const MobileMetric = ({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  highlight: boolean;
+}) => (
+  <div className="rounded-xl border border-thca-grey/25 bg-white/5 px-3 py-3 backdrop-blur">
+    <p className="text-xs uppercase tracking-[0.25em] text-thca-white/45">
+      {label}
+    </p>
+    <RatingDisplay rating={value} highlight={highlight} />
   </div>
 );
 
