@@ -36,6 +36,9 @@ const Footer = () => {
                 <FooterLink href="#">FAQ</FooterLink>
                 <FooterLink href="#">Terms of Service</FooterLink>
                 <FooterLink href="#">Privacy Policy</FooterLink>
+                <FooterLink href="/resources/retention-calculator">
+                  Dispensary Retention Calculator
+                </FooterLink>
               </ul>
             </div>
             
