@@ -4,6 +4,14 @@ import { Link } from "react-router-dom";
 
 import { submitContact } from "@/api/contactService";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type CalculatorInputs = {
   monthlyCustomers: string;
@@ -42,6 +50,7 @@ const RetentionCalculator = () => {
   const [leadForm, setLeadForm] = useState<LeadFormState>(INITIAL_LEAD_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resourcesUnlocked, setResourcesUnlocked] = useState(false);
+  const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const { incrementalOrders, incrementalRevenue, incrementalProfit } =
@@ -230,6 +239,14 @@ const RetentionCalculator = () => {
                       <Download className="h-4 w-4" />
                       Download calculator
                     </a>
+                    <a
+                      href="/Retention_Calculator_Snapshot.pdf"
+                      download
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-thca-grey/30 bg-thca-white/5 px-5 py-3 text-sm font-semibold text-thca-white transition hover:border-thca-gold/60 hover:text-thca-gold"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download summary (PDF)
+                    </a>
                     <span className="inline-flex items-center justify-center rounded-full border border-dashed border-thca-grey/40 px-5 py-3 text-sm font-medium text-thca-white/50">
                       GreenLoop App Audit link coming soon
                     </span>
@@ -340,6 +357,110 @@ const RetentionCalculator = () => {
             <p className="mt-8 text-sm text-thca-white/55">
               Tip: Unsure on margin? Start with your gross margin percent from P&L and plug it in here.
             </p>
+            <button
+              type="button"
+              onClick={() => setIsDownloadDialogOpen(true)}
+              className="mt-6 inline-flex items-center justify-center rounded-full border border-thca-red/60 bg-thca-red/15 px-6 py-3 text-sm font-semibold text-thca-red transition hover:bg-thca-red/25 focus:outline-none focus:ring-2 focus:ring-thca-red/50 focus:ring-offset-2 focus:ring-offset-[#14161c]"
+            >
+              Download summary PDF
+            </button>
+
+            <Dialog
+              open={isDownloadDialogOpen}
+              onOpenChange={setIsDownloadDialogOpen}
+            >
+              <DialogContent className="border-thca-grey/20 bg-gradient-to-b from-[#25272e] to-[#1b1d23] text-thca-white">
+                {resourcesUnlocked ? (
+                  <div className="space-y-6">
+                    <DialogHeader>
+                      <DialogTitle>Downloads unlocked</DialogTitle>
+                      <DialogDescription className="text-thca-white/70">
+                        Grab the PDF snapshot or the workbook and keep iterating
+                        with your team.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-3">
+                      <a
+                        href="/Retention_Calculator_Snapshot.pdf"
+                        download
+                        onClick={() => setIsDownloadDialogOpen(false)}
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-thca-grey/30 bg-thca-white/5 px-5 py-3 text-sm font-semibold text-thca-white transition hover:border-thca-gold/60 hover:text-thca-gold"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download summary (PDF)
+                      </a>
+                      <a
+                        href="/Dispensary_Retention_Calculator.xlsx"
+                        download
+                        onClick={() => setIsDownloadDialogOpen(false)}
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-thca-grey/30 bg-thca-white/5 px-5 py-3 text-sm font-semibold text-thca-white transition hover:border-thca-gold/60 hover:text-thca-gold"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download workbook (Excel)
+                      </a>
+                    </div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-thca-white/40">
+                      GreenLoop App Audit link coming soon
+                    </p>
+                  </div>
+                ) : (
+                  <form className="space-y-6" onSubmit={handleLeadFormSubmit}>
+                    <DialogHeader>
+                      <DialogTitle>Unlock your download</DialogTitle>
+                      <DialogDescription className="text-thca-white/70">
+                        Drop your info to grab the PDF snapshot now. We’ll email
+                        the GreenLoop App Audit when it’s ready.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4">
+                      <LabelledInput
+                        label="Your name"
+                        required
+                        value={leadForm.name}
+                        onChange={(value) => handleLeadFormChange("name", value)}
+                        placeholder="KeShaun Camon"
+                      />
+                      <LabelledInput
+                        label="Work email"
+                        required
+                        type="email"
+                        value={leadForm.email}
+                        onChange={(value) =>
+                          handleLeadFormChange("email", value)
+                        }
+                        placeholder="you@dispensary.com"
+                      />
+                      <LabelledInput
+                        label="Brand or dispensary"
+                        required
+                        value={leadForm.brandName}
+                        onChange={(value) =>
+                          handleLeadFormChange("brandName", value)
+                        }
+                        placeholder="GreenHaus"
+                      />
+                      <LabelledInput
+                        label="Website (optional)"
+                        value={leadForm.website}
+                        onChange={(value) =>
+                          handleLeadFormChange("website", value)
+                        }
+                        placeholder="https://yourstore.com"
+                      />
+                    </div>
+                    <DialogFooter>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center justify-center rounded-full bg-thca-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-thca-red/90 disabled:cursor-not-allowed disabled:opacity-70"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Sending..." : "Unlock download"}
+                      </button>
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
           </section>
         </div>
       </main>
