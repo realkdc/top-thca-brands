@@ -35,14 +35,11 @@
     <p><a href="/" style="color: #007bff; text-decoration: underline;">← Back to Top THCA Brands</a></p>
   </div>
   
-  <!-- For browsers: Auto-redirect to React app after showing content briefly -->
+  <!-- For browsers: Show a link to the interactive calculator -->
   <script>
-    if (typeof window !== 'undefined' && !navigator.userAgent.match(/bot|crawler|spider|facebookexternalhit|twitterbot|linkedinbot|instagram/i)) {
-      // Redirect browsers to the React app after a short delay
-      setTimeout(function() {
-        window.location.href = '/#/resources/retention-calculator';
-      }, 1500);
-    }
+    // Don't auto-redirect to avoid loops
+    // Users can click the link or the page will work as-is
+    console.log('Retention Calculator page loaded. Meta tags are available for crawlers.');
   </script>
 </body>
 </html>
