@@ -6,12 +6,13 @@
   NODE_VERSION = "18"
 
 # Serve static HTML for retention calculator route (for crawlers with proper meta tags)
+# Browsers will see the React app loaded in the static HTML
 # This must come BEFORE the catch-all redirect
 [[redirects]]
   from = "/resources/retention-calculator"
   to = "/resources/retention-calculator.html"
   status = 200
-  force = true
+  force = false
 
 # Fallback: serve SPA for all other routes
 [[redirects]]

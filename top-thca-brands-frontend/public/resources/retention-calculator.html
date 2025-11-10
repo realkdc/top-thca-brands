@@ -24,18 +24,33 @@
   
   <link rel="canonical" href="https://topthcabrands.com/resources/retention-calculator">
   
-  <!-- Redirect browsers to React app, but crawlers will read meta tags first -->
+  <!-- For browsers: Load the React app by redirecting to index.html which has the app -->
+  <!-- Crawlers will read the meta tags above before any redirect happens -->
   <script>
-    if (typeof window !== 'undefined') {
-      // Redirect after a short delay (crawlers will have read meta tags by then)
-      setTimeout(function() {
-        window.location.replace('/resources/retention-calculator');
-      }, 100);
-    }
+    (function() {
+      // Only redirect browsers, not crawlers
+      var ua = navigator.userAgent.toLowerCase();
+      var isCrawler = /bot|crawler|spider|facebookexternalhit|twitterbot|linkedinbot/i.test(ua);
+      
+      if (!isCrawler && typeof window !== 'undefined') {
+        // Redirect to the SPA route - Netlify will serve index.html due to catch-all redirect
+        // But we need to break out of this static file first
+        window.location.href = window.location.pathname.replace('.html', '') + '?from=static';
+      }
+    })();
   </script>
-  <meta http-equiv="refresh" content="0;url=/resources/retention-calculator">
 </head>
 <body>
-  <p>Redirecting to calculator... <a href="/resources/retention-calculator">Click here if not redirected</a></p>
+  <!-- Content for crawlers -->
+  <div style="padding: 2rem; font-family: system-ui, sans-serif;">
+    <h1>Dispensary Retention Calculator</h1>
+    <p>Calculate how much revenue you're leaving on the table without a customer retention app.</p>
+    <p>Free 2-minute calculator to project your retention lift and extra profit.</p>
+  </div>
+  
+  <!-- Fallback for noscript -->
+  <noscript>
+    <p><a href="/resources/retention-calculator">Click here to use the calculator</a></p>
+  </noscript>
 </body>
 </html>
