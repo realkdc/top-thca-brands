@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Edge function to handle crawler requests for retention calculator
+# This runs BEFORE redirects, so crawlers get pre-rendered HTML with meta tags
+[[edge_functions]]
+  path = "/resources/retention-calculator"
+  function = "og-prerender"
+
 # Serve SPA for all routes (React app handles routing)
 [[redirects]]
   from = "/*"
