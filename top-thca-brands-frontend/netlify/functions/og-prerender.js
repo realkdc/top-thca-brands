@@ -58,14 +58,53 @@ exports.handler = async (event, context) => {
     };
   }
   
-  // For browsers (not crawlers), return 404 so Netlify falls through to catch-all redirect
-  // With force=false in netlify.toml, a 404 from the function should cause
-  // Netlify to skip this redirect rule and use the catch-all (/* -> /index.html)
+  // For browsers (not crawlers), we need to serve the React app
+  // Since we can't easily read files in Netlify functions, we'll fetch the index.html
+  // from the site's origin or construct it with the React app scripts
+  
+  // Option 1: Fetch index.html from the site (might cause issues)
+  // Option 2: Return HTML that redirects to a path that serves the React app
+  // Option 3: Construct minimal HTML that loads React app
+  
+  // BEST: Return a 307 redirect to a path that will serve index.html via catch-all
+  // But we need to avoid the redirect matching this function again
+  // Solution: Redirect to the same path but the function won't match on the redirect
+  // because Netlify processes redirects differently
+  
+  // Actually, the cleanest: Return HTML that includes a script to load React
+  // and set the correct route. But we need the built asset paths.
+  
+  // WORKING SOLUTION: Return a redirect with status 307 to home
+  // The React app will load and React Router will see the current URL
+  // and route correctly. But the URL will change to /
+  
+  // BETTER: Use X-Netlify-Status header or return a proxy response
+  // Actually, Netlify functions can't easily proxy to other paths
+  
+  // For browsers, redirect to home with the route stored in sessionStorage
+  // The React app will check sessionStorage and navigate to the correct route
+  const browserHTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script>
+    sessionStorage.setItem('redirectRoute', '/resources/retention-calculator');
+    window.location.replace('/');
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=/" />
+  </noscript>
+</head>
+<body>
+  <p>Loading...</p>
+</body>
+</html>`;
+  
   return {
-    statusCode: 404,
+    statusCode: 200,
     headers: {
-      'Content-Type': 'text/plain'
+      'Content-Type': 'text/html; charset=utf-8'
     },
-    body: 'Not found'
+    body: browserHTML
   };
 };
