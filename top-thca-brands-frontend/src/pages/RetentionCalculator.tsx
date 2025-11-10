@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Shield, Download } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import { submitContact } from "@/api/contactService";
 import { useToast } from "@/hooks/use-toast";
@@ -134,8 +135,68 @@ const RetentionCalculator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#090a0d] text-thca-white flex flex-col">
-      <header className="border-b border-thca-grey/30 bg-thca-black/80 backdrop-blur">
+    <>
+      <Helmet>
+        <title>Dispensary Retention Calculator - Top THCA Brands</title>
+        <meta
+          name="description"
+          content="Calculate how much revenue you're leaving on the table without a customer retention app. Free 2-minute calculator to project your retention lift and extra profit."
+        />
+        <meta
+          name="keywords"
+          content="dispensary retention calculator, customer retention, repeat customers, dispensary revenue calculator, customer retention app"
+        />
+        
+        {/* Open Graph / Facebook */}
+        <meta
+          property="og:title"
+          content="Dispensary Retention Calculator - See Your Revenue Potential"
+        />
+        <meta
+          property="og:description"
+          content="Want to see the exact $$ you're leaving without an app? Our 2-min self-serve calculator shows your revenue potential from improved customer retention."
+        />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:url"
+          content="https://topthcabrands.com/resources/retention-calculator"
+        />
+        <meta
+          property="og:image"
+          content="https://topthcabrands.com/og-image.png"
+        />
+        <meta
+          property="og:image:secure_url"
+          content="https://topthcabrands.com/og-image.png"
+        />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Top THCA Brands" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Dispensary Retention Calculator"
+        />
+        <meta
+          name="twitter:description"
+          content="Calculate your revenue potential from improved customer retention. Free 2-minute calculator."
+        />
+        <meta
+          name="twitter:image"
+          content="https://topthcabrands.com/og-image.png"
+        />
+
+        {/* Canonical URL */}
+        <link
+          rel="canonical"
+          href="https://topthcabrands.com/resources/retention-calculator"
+        />
+      </Helmet>
+      <div className="min-h-screen bg-[#090a0d] text-thca-white flex flex-col">
+        <header className="border-b border-thca-grey/30 bg-thca-black/80 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-6">
           <Link to="/" className="flex items-center gap-3 text-thca-white">
             <Shield className="h-7 w-7 text-thca-red" />
@@ -474,7 +535,8 @@ const RetentionCalculator = () => {
           </span>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 };
 
