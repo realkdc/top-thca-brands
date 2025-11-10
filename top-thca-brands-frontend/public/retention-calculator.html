@@ -25,17 +25,19 @@
   <meta name="twitter:image" content="https://topthcabrands.com/og-image.png">
   
   <link rel="canonical" href="https://topthcabrands.com/resources/retention-calculator">
-  
-  <script type="module" crossorigin src="/src/main.tsx"></script>
 </head>
 <body>
-  <div id="root"></div>
+  <h1>Dispensary Retention Calculator</h1>
+  <p>Calculate how much revenue you're leaving on the table without a customer retention app.</p>
+  <p><a href="/">Click here to use the calculator</a></p>
+  
   <script>
-    // For crawlers: they get the meta tags above and this simple body
-    // For browsers: load the React app immediately
-    if (!navigator.userAgent.match(/facebookexternalhit|Facebot|Twitterbot|WhatsApp|Slackbot|Instagram|Pinterest/i)) {
-      // This is a browser, not a crawler
-      // The script tag above will load the React app
+    // Crawlers will see the meta tags and simple HTML above
+    // Browsers get redirected to the React app immediately
+    var ua = navigator.userAgent;
+    if (!ua.match(/bot|crawler|spider|crawling|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Instagram|Pinterest/i)) {
+      // This is a real browser - redirect to main app
+      window.location.replace('/');
     }
   </script>
 </body>
