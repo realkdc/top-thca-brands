@@ -1,17 +1,13 @@
 [build]
   command = "npm install && npm run build"
   publish = "dist"
-  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
 
-# Edge function to handle crawler requests (runs before redirects)
-[[edge_functions]]
-  path = "/resources/retention-calculator"
-  function = "prerender"
-
-# Fallback: serve SPA for all other routes
+# Serve SPA for all routes
+# Meta tags are set in index.html via inline JS before React loads
+# This ensures crawlers can see the meta tags even if they don't execute JS
 [[redirects]]
   from = "/*"
   to = "/index.html"
