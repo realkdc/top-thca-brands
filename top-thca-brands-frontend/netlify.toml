@@ -6,14 +6,10 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# IMPORTANT: This approach won't work well because static HTML can't load React app
-# Instead, we need to ensure index.html has the right meta tags
-# For now, removing this redirect and relying on the inline JS in index.html
-# [[redirects]]
-#   from = "/resources/retention-calculator"  
-#   to = "/resources/retention-calculator.html"
-#   status = 200
-#   force = true
+# Edge function to handle crawler requests (runs before redirects)
+[[edge_functions]]
+  path = "/resources/retention-calculator"
+  function = "prerender"
 
 # Fallback: serve SPA for all other routes
 [[redirects]]
