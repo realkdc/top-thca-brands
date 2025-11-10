@@ -1,17 +1,20 @@
 [build]
   command = "npm install && npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
 
-# Edge function to handle crawler requests for retention calculator
-# This runs BEFORE redirects, so crawlers get pre-rendered HTML with meta tags
-[[edge_functions]]
-  path = "/resources/retention-calculator"
-  function = "og-prerender"
+# IMPORTANT: This approach has issues - the function can't easily serve the React app to browsers
+# Better solution: Use Netlify's built-in prerendering or a different approach
+# For now, commenting out and using a simpler solution
+# [[redirects]]
+#   from = "/resources/retention-calculator"
+#   to = "/.netlify/functions/og-prerender"
+#   status = 200
 
-# Serve SPA for all routes (React app handles routing)
+# Serve SPA for all other routes (React app handles routing)
 [[redirects]]
   from = "/*"
   to = "/index.html"
