@@ -5,15 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Serve static HTML with meta tags for retention calculator
-# This file has the Open Graph tags that Instagram/Facebook need
-[[redirects]]
-  from = "/resources/retention-calculator"
-  to = "/retention-calculator.html"
-  status = 200
-  force = true
-
-# Serve SPA for all other routes (React app handles routing)
+# Serve SPA for all routes (React app handles routing)
 [[redirects]]
   from = "/*"
   to = "/index.html"
