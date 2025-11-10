@@ -1,9 +1,0 @@
-# Netlify redirects file
-# This file is processed before netlify.toml
-
-# Serve all routes through React app
-/*    /index.html   200
-
-# Special handling for retention calculator - handled by serverless function
-/resources/retention-calculator    /.netlify/functions/og-prerender   200
-

@@ -6,13 +6,14 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# IMPORTANT: This approach has issues - the function can't easily serve the React app to browsers
-# Better solution: Use Netlify's built-in prerendering or a different approach
-# For now, commenting out and using a simpler solution
-# [[redirects]]
-#   from = "/resources/retention-calculator"
-#   to = "/.netlify/functions/og-prerender"
-#   status = 200
+# Redirect retention calculator to serverless function for crawler detection
+# Function serves HTML with meta tags to crawlers
+# For browsers, function will redirect to a path that serves React app
+[[redirects]]
+  from = "/resources/retention-calculator"
+  to = "/.netlify/functions/og-prerender"
+  status = 200
+  force = false
 
 # Serve SPA for all other routes (React app handles routing)
 [[redirects]]

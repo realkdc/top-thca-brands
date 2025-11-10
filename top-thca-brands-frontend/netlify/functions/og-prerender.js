@@ -58,14 +58,14 @@ exports.handler = async (event, context) => {
     };
   }
   
-  // For browsers, redirect to the React app route
-  // This will be caught by the catch-all redirect and serve index.html
+  // For browsers (not crawlers), return 404 so Netlify falls through to catch-all redirect
+  // With force=false in netlify.toml, a 404 from the function should cause
+  // Netlify to skip this redirect rule and use the catch-all (/* -> /index.html)
   return {
-    statusCode: 302,
+    statusCode: 404,
     headers: {
-      'Location': '/resources/retention-calculator',
-      'Cache-Control': 'no-cache'
+      'Content-Type': 'text/plain'
     },
-    body: ''
+    body: 'Not found'
   };
 };
