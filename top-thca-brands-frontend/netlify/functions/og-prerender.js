@@ -1,6 +1,15 @@
 // Netlify serverless function to serve pre-rendered HTML with meta tags for social media crawlers
 exports.handler = async (event, context) => {
-  const userAgent = event.headers['user-agent'] || event.headers['User-Agent'] || '';
+  // Get user agent from headers (check multiple possible header names)
+  const userAgent = event.headers['user-agent'] || 
+                    event.headers['User-Agent'] || 
+                    event.headers['HTTP_USER_AGENT'] || 
+                    (event.multiValueHeaders && event.multiValueHeaders['user-agent'] && event.multiValueHeaders['user-agent'][0]) ||
+                    '';
+  
+  // Log for debugging
+  console.log('Function called with user agent:', userAgent);
+  console.log('Event headers:', JSON.stringify(event.headers));
   
   // List of known crawler user agents (Instagram uses facebookexternalhit)
   const crawlers = [
@@ -11,13 +20,20 @@ exports.handler = async (event, context) => {
     'WhatsApp',
     'Slackbot',
     'Instagram',
-    'Pinterest'
+    'Pinterest',
+    'SkypeUriPreview',
+    'TelegramBot',
+    'ViberBot',
+    'Discordbot'
   ];
   
-  // Check if the request is from a crawler
+  // Check if the request is from a crawler (case-insensitive)
+  const userAgentLower = userAgent.toLowerCase();
   const isCrawler = crawlers.some(crawler => 
-    userAgent.toLowerCase().includes(crawler.toLowerCase())
+    userAgentLower.includes(crawler.toLowerCase())
   );
+  
+  console.log('Is crawler:', isCrawler);
   
   if (isCrawler) {
     // Return pre-rendered HTML with meta tags for retention calculator

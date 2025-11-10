@@ -7,13 +7,12 @@
   NODE_VERSION = "18"
 
 # Redirect retention calculator to serverless function for crawler detection
-# Function serves HTML with meta tags to crawlers
-# For browsers, function will redirect to a path that serves React app
+# Function serves HTML with meta tags to crawlers, redirects browsers to React app
 [[redirects]]
   from = "/resources/retention-calculator"
   to = "/.netlify/functions/og-prerender"
   status = 200
-  force = false
+  force = true
 
 # Serve SPA for all other routes (React app handles routing)
 [[redirects]]
