@@ -1,10 +1,21 @@
 [build]
   command = "npm install && npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
 
+# IMPORTANT: This approach won't work well because static HTML can't load React app
+# Instead, we need to ensure index.html has the right meta tags
+# For now, removing this redirect and relying on the inline JS in index.html
+# [[redirects]]
+#   from = "/resources/retention-calculator"  
+#   to = "/resources/retention-calculator.html"
+#   status = 200
+#   force = true
+
+# Fallback: serve SPA for all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
