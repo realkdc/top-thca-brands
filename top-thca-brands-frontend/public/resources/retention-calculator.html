@@ -23,34 +23,26 @@
   <meta name="twitter:image" content="https://topthcabrands.com/og-image.png">
   
   <link rel="canonical" href="https://topthcabrands.com/resources/retention-calculator">
-  
-  <!-- For browsers: Load the React app by redirecting to index.html which has the app -->
-  <!-- Crawlers will read the meta tags above before any redirect happens -->
-  <script>
-    (function() {
-      // Only redirect browsers, not crawlers
-      var ua = navigator.userAgent.toLowerCase();
-      var isCrawler = /bot|crawler|spider|facebookexternalhit|twitterbot|linkedinbot/i.test(ua);
-      
-      if (!isCrawler && typeof window !== 'undefined') {
-        // Redirect to the SPA route - Netlify will serve index.html due to catch-all redirect
-        // But we need to break out of this static file first
-        window.location.href = window.location.pathname.replace('.html', '') + '?from=static';
-      }
-    })();
-  </script>
+  <link rel="stylesheet" href="/index.css">
 </head>
 <body>
-  <!-- Content for crawlers -->
-  <div style="padding: 2rem; font-family: system-ui, sans-serif;">
-    <h1>Dispensary Retention Calculator</h1>
-    <p>Calculate how much revenue you're leaving on the table without a customer retention app.</p>
-    <p>Free 2-minute calculator to project your retention lift and extra profit.</p>
+  <!-- Simple page with meta tags for crawlers -->
+  <!-- Browsers will see this content and can navigate to the full app -->
+  <div style="padding: 2rem; font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 2rem auto; line-height: 1.6;">
+    <h1 style="font-size: 2rem; margin-bottom: 1rem;">Dispensary Retention Calculator</h1>
+    <p style="font-size: 1.1rem; margin-bottom: 1rem;">Calculate how much revenue you're leaving on the table without a customer retention app.</p>
+    <p style="margin-bottom: 2rem;">Free 2-minute calculator to project your retention lift and extra profit.</p>
+    <p><a href="/" style="color: #007bff; text-decoration: underline;">← Back to Top THCA Brands</a></p>
   </div>
   
-  <!-- Fallback for noscript -->
-  <noscript>
-    <p><a href="/resources/retention-calculator">Click here to use the calculator</a></p>
-  </noscript>
+  <!-- For browsers: Auto-redirect to React app after showing content briefly -->
+  <script>
+    if (typeof window !== 'undefined' && !navigator.userAgent.match(/bot|crawler|spider|facebookexternalhit|twitterbot|linkedinbot|instagram/i)) {
+      // Redirect browsers to the React app after a short delay
+      setTimeout(function() {
+        window.location.href = '/#/resources/retention-calculator';
+      }, 1500);
+    }
+  </script>
 </body>
 </html>
