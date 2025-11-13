@@ -5,6 +5,11 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Edge function for pre-rendering retention calculator for crawlers
+[[edge_functions]]
+  function = "prerender"
+  path = "/resources/retention-calculator"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
