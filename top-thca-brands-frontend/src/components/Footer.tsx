@@ -39,6 +39,9 @@ const Footer = () => {
                 <FooterLink href="/resources/retention-calculator">
                   Dispensary Retention Calculator
                 </FooterLink>
+                <FooterLink href="/resources/cannabis-content-ideas">
+                  50 Cannabis Content Ideas
+                </FooterLink>
               </ul>
             </div>
             

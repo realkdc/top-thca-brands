@@ -11,6 +11,7 @@ import Admin from "./pages/Admin";
 import Redirect from "./pages/Redirect";
 import RetentionCalculator from "./pages/RetentionCalculator";
 import SmsCampaigns from "./pages/SmsCampaigns";
+import CannabisContentIdeas from "./pages/CannabisContentIdeas";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,10 @@ const App = () => (
             />
             <Route path="/resources/sms-campaigns" element={<SmsCampaigns />} />
             <Route path="/sms-campaigns" element={<SmsCampaigns />} />
+            <Route
+              path="/resources/cannabis-content-ideas"
+              element={<CannabisContentIdeas />}
+            />
             <Route path="/go/:target" element={<Redirect />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
