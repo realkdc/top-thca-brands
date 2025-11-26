@@ -1,24 +1,47 @@
 // Netlify Edge Function to serve pre-rendered HTML for crawlers
 // This ensures Instagram, Facebook, and other crawlers see proper meta tags
 
-const CRAWLER_USER_AGENTS = [
-  'facebookexternalhit',
-  'Facebot',
-  'Twitterbot',
-  'LinkedInBot',
-  'WhatsApp',
-  'Slackbot',
-  'Instagram',
-  'Pinterest',
-  'bot',
-  'crawler',
-  'spider',
-  'crawling',
+// Only serve static HTML to actual preview crawlers, not in-app browsers
+// Instagram's in-app browser includes "Instagram" but is a real browser
+const PREVIEW_CRAWLER_PATTERNS = [
+  'facebookexternalhit',  // Facebook/Instagram link preview crawler
+  'Facebot',              // Facebook bot
+  'Twitterbot',           // Twitter preview crawler
+  'LinkedInBot',          // LinkedIn preview crawler
+  'WhatsApp',             // WhatsApp preview crawler (not in-app browser)
+  'Slackbot',             // Slack preview crawler
+  'Pinterest',            // Pinterest preview crawler
 ];
 
 function isCrawler(userAgent: string): boolean {
   const ua = userAgent.toLowerCase();
-  return CRAWLER_USER_AGENTS.some(crawler => ua.includes(crawler.toLowerCase()));
+  
+  // Check for specific preview crawlers first
+  const isPreviewCrawler = PREVIEW_CRAWLER_PATTERNS.some(pattern => 
+    ua.includes(pattern.toLowerCase())
+  );
+  
+  if (isPreviewCrawler) {
+    return true;
+  }
+  
+  // Instagram's in-app browser includes "Instagram" but is a real browser
+  // It will have browser identifiers like Safari, WebKit, Mobile, etc.
+  // Only treat as crawler if it's clearly a bot without browser identifiers
+  const hasBrowserIdentifiers = ua.includes('safari') || 
+                                 ua.includes('chrome') || 
+                                 ua.includes('webkit') ||
+                                 ua.includes('mobile') ||
+                                 ua.includes('mozilla');
+  
+  // If it has browser identifiers, it's a real browser (even if it mentions Instagram)
+  if (hasBrowserIdentifiers) {
+    return false;
+  }
+  
+  // Check for generic bot patterns only if no browser identifiers
+  const genericBotPatterns = ['bot', 'crawler', 'spider', 'crawling'];
+  return genericBotPatterns.some(pattern => ua.includes(pattern));
 }
 
 function getPrerenderedHTML(): string {
